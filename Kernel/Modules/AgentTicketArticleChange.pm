@@ -198,10 +198,6 @@ sub new {
             Method  => \&_GetSLAs
         },
         {
-            FieldID => 'StandardTemplateID',
-            Method  => \&_GetStandardTemplates
-        },
-        {
             FieldID => 'TypeID',
             Method  => \&_GetTypes
         },
@@ -210,9 +206,8 @@ sub new {
     # dependancies of standard fields which are not defined via ACLs
     $Self->{InternalDependancy} = {
         Dest => {
-            NewUserID          => 1,
-            NewResponsibleID   => 1,
-            StandardTemplateID => 1,
+            NewUserID        => 1,
+            NewResponsibleID => 1,
         },
         ServiceID => {
             SLAID     => 1,
@@ -403,7 +398,7 @@ sub Run {
         qw(
             NewStateID NewPriorityID TimeUnits IsVisibleForCustomer Title NewQueueID
             Year Month Day Hour Minute NewOwnerID NewResponsibleID TypeID ServiceID SLAID
-            ReplyToArticle StandardTemplateID CreateArticle Title
+            ReplyToArticle CreateArticle Title
         )
         )
     {
@@ -465,9 +460,6 @@ sub Run {
             %GetParam,
         );
     }
-
-    # get upload cache object
-    my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
 
     if (
         $Self->{Subaction} eq 'Store'
@@ -1437,11 +1429,6 @@ sub Run {
                 Translation  => 1,
                 Max          => 100,
             },
-            StandardTemplateID => {
-                PossibleNone => 1,
-                Translation  => 1,
-                Max          => 100,
-            },
             TypeID => {
                 PossibleNone => 1,
                 Translation  => 1,
@@ -1459,52 +1446,10 @@ sub Run {
             };
         }
 
-        my @TemplateAJAX;
-
-        # update ticket body and attachements if needed.
-        if ( $ChangedStdFields{StandardTemplateID} ) {
-            my $TemplateText;
-
-            # remove all attachments from the Upload cache
-            my $RemoveSuccess = $UploadCacheObject->FormIDRemove(
-                FormID => $Self->{FormID},
-            );
-            if ( !$RemoveSuccess ) {
-                $Kernel::OM->Get('Kernel::System::Log')->Log(
-                    Priority => 'error',
-                    Message  => "Form attachments could not be deleted!",
-                );
-            }
-
-            # get the template text and set new attachments if a template is selected
-            if ( IsPositiveInteger( $GetParam{StandardTemplateID} ) ) {
-                my $TemplateGenerator = $Kernel::OM->Get('Kernel::System::TemplateGenerator');
-
-                # set template text, replace smart tags (limited as ticket is not created)
-                $TemplateText = $TemplateGenerator->Template(
-                    TemplateID => $GetParam{StandardTemplateID},
-                    TicketID   => $Self->{TicketID},
-                    UserID     => $Self->{UserID},
-                );
-            }
-
-            @TemplateAJAX = (
-                {
-                    Name => 'UseTemplateNote',
-                    Data => '0',
-                },
-                {
-                    Name => 'RichText',
-                    Data => $TemplateText || '',
-                },
-            );
-        }
-
         my $JSON = $LayoutObject->BuildSelectionJSON(
             [
                 @StdFieldAJAX,
                 @DynamicFieldAJAX,
-                @TemplateAJAX,
             ],
         );
 
@@ -2573,40 +2518,6 @@ sub _Mask {
             }
         }
 
-        # build text template string
-        my %StandardTemplates = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateList(
-            Valid => 1,
-            Type  => 'Note',
-        );
-
-        my $QueueStandardTemplates = $Self->_GetStandardTemplates(
-            %Param,
-            TicketID => $Self->{TicketID} || '',
-        );
-
-        if (
-            IsHashRefWithData(
-                $QueueStandardTemplates
-                    || ( $Config->{Queue} && IsHashRefWithData( \%StandardTemplates ) )
-            )
-            )
-        {
-            $Param{StandardTemplateStrg} = $LayoutObject->BuildSelection(
-                Data         => $QueueStandardTemplates || {},
-                Name         => 'StandardTemplateID',
-                SelectedID   => $Param{StandardTemplateID} || '',
-                Class        => 'Modernize',
-                PossibleNone => 1,
-                Sort         => 'AlphanumericValue',
-                Translation  => 1,
-                Max          => 200,
-            );
-            $LayoutObject->Block(
-                Name => 'StandardTemplate',
-                Data => {%Param},
-            );
-        }
-
         # show time accounting box
         if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
             if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{NoteMandatory} ) {
@@ -2871,37 +2782,6 @@ sub _GetPriorities {
     }
 
     return \%Priorities;
-}
-
-sub _GetStandardTemplates {
-    my ( $Self, %Param ) = @_;
-
-    # either QueueID or TicketID is needed
-    return {} if !$Param{QueueID} && !$Param{TicketID};
-
-    my $QueueID = $Param{QueueID} || '';
-    if ( !$Param{QueueID} && $Param{TicketID} ) {
-
-        # get QueueID from the ticket
-        my %Ticket = $Kernel::OM->Get('Kernel::System::Ticket')->TicketGet(
-            TicketID      => $Param{TicketID},
-            DynamicFields => 0,
-            UserID        => $Self->{UserID},
-        );
-        $QueueID = $Ticket{QueueID} || '';
-    }
-
-    # fetch all std. templates
-    my %StandardTemplates = $Kernel::OM->Get('Kernel::System::Queue')->QueueStandardTemplateMemberList(
-        QueueID       => $QueueID,
-        TemplateTypes => 1,
-    );
-
-    # return empty hash if there are no templates for this screen
-    return {} unless IsHashRefWithData( $StandardTemplates{Note} );
-
-    # return just the templates for this screen
-    return $StandardTemplates{Note};
 }
 
 sub _GetTypes {
