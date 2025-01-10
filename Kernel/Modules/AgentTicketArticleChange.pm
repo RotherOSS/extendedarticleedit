@@ -2,7 +2,7 @@
 # OTOBO is a web-based ticketing system for service organisations.
 # --
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2019-2024 Rother OSS GmbH, https://otobo.io/
+# Copyright (C) 2019-2025 Rother OSS GmbH, https://otobo.io/
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -241,7 +241,6 @@ sub Run {
     my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
     my $ParamObject             = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $FieldRestrictionsObject = $Kernel::OM->Get('Kernel::System::Ticket::FieldRestrictions');
-    my $ArticleObject           = $Kernel::OM->Get('Kernel::System::Ticket::Article');
 
     # check needed stuff
     if ( !$Self->{TicketID} ) {
@@ -299,40 +298,7 @@ sub Run {
     );
 
     my %GetParam;
-    my @ArticleAttachments;
     my %ArticleData;
-
-    # if we are editing an article
-    if ( $Self->{ArticleID} && !$Self->{Subaction} ) {
-
-        my %Ticket = $TicketObject->TicketGet( TicketID => $Self->{TicketID} );
-
-        my $ArticleBackendObject = $ArticleObject->BackendForArticle(
-            TicketID            => $Self->{TicketID},
-            ArticleID           => $Self->{ArticleID},
-            ShowDeletedArticles => 1
-        );
-
-        %ArticleData = $ArticleBackendObject->ArticleGet(
-            TicketID      => $Self->{TicketID},
-            ArticleID     => $Self->{ArticleID},
-            DynamicFields => 1,
-            RealNames     => 1,
-            UserID        => $Self->{UserID}
-        );
-
-        if ( keys %ArticleData ) {
-            @ArticleAttachments = $Self->_CopyArticleAttachmentsToUploadCache(
-                ArticleID => $Self->{ArticleID}
-            );
-
-            %GetParam = $Self->_LoadArticleEdit(
-                ArticleData          => \%ArticleData,
-                Ticket               => \%Ticket,
-                ArticleBackendObject => $ArticleBackendObject
-            );
-        }
-    }
 
     $LayoutObject->Block(
         Name => 'Properties',
@@ -435,13 +401,14 @@ sub Run {
     PARAMETER:
     for my $Key (
         qw(
-            NewStateID NewPriorityID TimeUnits IsVisibleForCustomer Title Body Subject NewQueueID
+            NewStateID NewPriorityID TimeUnits IsVisibleForCustomer Title Subject NewQueueID
             Year Month Day Hour Minute NewOwnerID NewResponsibleID TypeID ServiceID SLAID
             ReplyToArticle StandardTemplateID CreateArticle Title
         )
         )
     {
 
+        # TODO find out what this is about
         next PARAMETER if $Self->{ArticleID} && !$Self->{Subaction} && ( $Key eq 'Body' || $Key eq 'Subject' );
 
         $GetParam{$Key} = $ParamObject->GetParam( Param => $Key );
@@ -499,14 +466,6 @@ sub Run {
         );
     }
 
-    # rewrap body if no rich text is used
-    if ( $GetParam{Body} && !$LayoutObject->{BrowserRichText} ) {
-        $GetParam{Body} = $LayoutObject->WrapPlainText(
-            MaxCharacters => $ConfigObject->Get('Ticket::Frontend::TextAreaNote'),
-            PlainText     => $GetParam{Body},
-        );
-    }
-
     # get upload cache object
     my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
 
@@ -521,11 +480,6 @@ sub Run {
         }
 
         $GetParam{IsVisibleForCustomer} //= 0;
-
-        # get all attachments meta data
-        my @Attachments = $UploadCacheObject->FormIDGetAllFilesMeta(
-            FormID => $Self->{FormID},
-        );
 
         # get state object
         my $StateObject = $Kernel::OM->Get('Kernel::System::State');
@@ -577,11 +531,6 @@ sub Run {
             # check subject
             if ( !$GetParam{Subject} ) {
                 $Error{'SubjectInvalid'} = 'ServerError';
-            }
-
-            # check body
-            if ( !$GetParam{Body} ) {
-                $Error{'BodyInvalid'} = 'ServerError';
             }
         }
 
@@ -798,7 +747,6 @@ sub Run {
                     BodyClass => 'Popup',
                 ),
                 $Self->_Mask(
-                    Attachments => \@Attachments,
                     %Ticket,
                     %GetParam,
                     %Error,
@@ -870,22 +818,15 @@ sub Run {
         {
 
             # move ticket (send notification if no new owner is selected)
-            my $BodyAsText = '';
-            if ( $LayoutObject->{BrowserRichText} ) {
-                $BodyAsText = $LayoutObject->RichText2Ascii(
-                    String => $GetParam{Body} || 0,
-                );
-            }
-            else {
-                $BodyAsText = $GetParam{Body} || 0;
-            }
             my $Move = $TicketObject->TicketQueueSet(
                 QueueID            => $GetParam{NewQueueID},
                 UserID             => $Self->{UserID},
                 TicketID           => $Self->{TicketID},
                 SendNoNotification => $GetParam{NewUserID},
-                Comment            => $BodyAsText,
-                Action             => $Self->{Action},
+
+                # TODO check if this is mandatory
+                # Comment            => $BodyAsText,
+                Action => $Self->{Action},
             );
             if ( !$Move ) {
                 return $LayoutObject->ErrorScreen();
@@ -895,9 +836,6 @@ sub Run {
         # set new owner
         my @NotifyDone;
         if ( $Config->{Owner} ) {
-            my $BodyText = $LayoutObject->RichText2Ascii(
-                String => $GetParam{Body} || '',
-            );
             if ( $GetParam{NewOwnerID} ) {
                 $TicketObject->TicketLockSet(
                     TicketID => $Self->{TicketID},
@@ -908,7 +846,9 @@ sub Run {
                     TicketID  => $Self->{TicketID},
                     UserID    => $Self->{UserID},
                     NewUserID => $GetParam{NewOwnerID},
-                    Comment   => $BodyText,
+
+                    # TODO check if this is mandatory
+                    # Comment   => $BodyText,
                 );
                 $UnlockOnAway = 0;
 
@@ -922,14 +862,13 @@ sub Run {
         # set new responsible
         if ( $ConfigObject->Get('Ticket::Responsible') && $Config->{Responsible} ) {
             if ( $GetParam{NewResponsibleID} ) {
-                my $BodyText = $LayoutObject->RichText2Ascii(
-                    String => $GetParam{Body} || '',
-                );
                 my $Success = $TicketObject->TicketResponsibleSet(
                     TicketID  => $Self->{TicketID},
                     UserID    => $Self->{UserID},
                     NewUserID => $GetParam{NewResponsibleID},
-                    Comment   => $BodyText,
+
+                    # TODO check if this is mandatory
+                    # Comment   => $BodyText,
                 );
 
                 # remember to not notify responsible twice
@@ -999,7 +938,7 @@ sub Run {
         if (
             $GetParam{CreateArticle}
             && $Config->{Note}
-            && ( $GetParam{Subject} || $GetParam{Body} )
+            && ( $GetParam{Subject} )
             )
         {
 
@@ -1012,58 +951,6 @@ sub Run {
                 }
                 $GetParam{Subject} = $GetParam{Subject}
                     || $LayoutObject->{LanguageObject}->Translate('No subject');
-            }
-
-            # get pre loaded attachment
-            my @Attachments = $UploadCacheObject->FormIDGetAllFilesData(
-                FormID => $Self->{FormID},
-            );
-
-            # get submit attachment
-            my %UploadStuff = $ParamObject->GetUploadAll(
-                Param => 'FileUpload',
-            );
-            if (%UploadStuff) {
-                push @Attachments, \%UploadStuff;
-            }
-
-            my $MimeType = 'text/plain';
-            if ( $LayoutObject->{BrowserRichText} ) {
-                $MimeType = 'text/html';
-
-                # remove unused inline images
-                my @NewAttachmentData;
-                ATTACHMENT:
-                for my $Attachment (@Attachments) {
-                    my $ContentID = $Attachment->{ContentID};
-                    if (
-                        $ContentID
-                        && ( $Attachment->{ContentType} =~ /image/i )
-                        && ( $Attachment->{Disposition} eq 'inline' )
-                        )
-                    {
-                        my $ContentIDHTMLQuote = $LayoutObject->Ascii2Html(
-                            Text => $ContentID,
-                        );
-
-                        # workaround for link encode of rich text editor, see bug#5053
-                        my $ContentIDLinkEncode = $LayoutObject->LinkEncode($ContentID);
-                        $GetParam{Body} =~ s/(ContentID=)$ContentIDLinkEncode/$1$ContentID/g;
-
-                        # ignore attachment if not linked in body
-                        next ATTACHMENT
-                            if $GetParam{Body} !~ /(\Q$ContentIDHTMLQuote\E|\Q$ContentID\E)/i;
-                    }
-
-                    # remember inline images and normal attachments
-                    push @NewAttachmentData, \%{$Attachment};
-                }
-                @Attachments = @NewAttachmentData;
-
-                # verify html document
-                $GetParam{Body} = $LayoutObject->RichTextDocumentComplete(
-                    String => $GetParam{Body},
-                );
             }
 
             my $From = "\"$Self->{UserFullname}\" <$Self->{UserEmail}>";
@@ -1090,30 +977,13 @@ sub Run {
                 push @NotifyUserIDs, @UserListWithoutSelection;
             }
 
-            if ( $Self->{Action} eq 'AgentTicketEmailOutbound' ) {
-                $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Email')->ArticleSend(
-                    TicketID                        => $Self->{TicketID},
-                    SenderType                      => 'agent',
-                    From                            => $From,
-                    MimeType                        => $MimeType,
-                    Charset                         => $LayoutObject->{UserCharset},
-                    UserID                          => $Self->{UserID},
-                    HistoryType                     => $Config->{HistoryType},
-                    HistoryComment                  => $Config->{HistoryComment},
-                    ForceNotificationToUserID       => \@NotifyUserIDs,
-                    ExcludeMuteNotificationToUserID => \@NotifyDone,
-                    UnlockOnAway                    => $UnlockOnAway,
-                    Attachment                      => \@Attachments,
-                    %GetParam,
-                );
-            }
-            elsif ( $Self->{ArticleID} ) {
+            # TODO  change to articleupdate
+            if ( $Self->{ArticleID} ) {
                 $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleEdit(
                     TicketID                        => $Self->{TicketID},
                     ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
                     SenderType                      => 'agent',
                     From                            => $From,
-                    MimeType                        => $MimeType,
                     Charset                         => $LayoutObject->{UserCharset},
                     UserID                          => $Self->{UserID},
                     HistoryType                     => $Config->{HistoryType},
@@ -1121,25 +991,7 @@ sub Run {
                     ForceNotificationToUserID       => \@NotifyUserIDs,
                     ExcludeMuteNotificationToUserID => \@NotifyDone,
                     UnlockOnAway                    => $UnlockOnAway,
-                    Attachment                      => \@Attachments,
                     UserLogin                       => $Self->{UserLogin},
-                    %GetParam,
-                );
-            }
-            else {
-                $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleCreate(
-                    TicketID                        => $Self->{TicketID},
-                    SenderType                      => 'agent',
-                    From                            => $From,
-                    MimeType                        => $MimeType,
-                    Charset                         => $LayoutObject->{UserCharset},
-                    UserID                          => $Self->{UserID},
-                    HistoryType                     => $Config->{HistoryType},
-                    HistoryComment                  => $Config->{HistoryComment},
-                    ForceNotificationToUserID       => \@NotifyUserIDs,
-                    ExcludeMuteNotificationToUserID => \@NotifyDone,
-                    UnlockOnAway                    => $UnlockOnAway,
-                    Attachment                      => \@Attachments,
                     %GetParam,
                 );
             }
@@ -1184,7 +1036,7 @@ sub Run {
 
             # set the value which was taken from web request
             # TODO: for Reference and Lens, the order is relevant
-            my $Success = $DynamicFieldBackendObject->ValueSet(
+            my $Success = $DynamicFieldBackendObject->ValueSet(    ## no critic qw(ProhibitUnusedVarsStricter)
                 DynamicFieldConfig => $DynamicFieldConfig,
                 ObjectID           => $ObjectID,
                 Value              => $DynamicFieldValues{ $DynamicFieldConfig->{Name} },
@@ -1229,13 +1081,6 @@ sub Run {
 
         # get list type
         my $TreeView = $ConfigObject->Get('Ticket::Frontend::ListType') eq 'tree' ? 1 : 0;
-
-        my $OldOwners = $Self->_GetOldOwners(
-            %GetParam,
-            QueueID  => $GetParam{QueueID},
-            StateID  => $GetParam{NextStateID},
-            AllUsers => $GetParam{OwnerAll},
-        );
 
         my $Autoselect = $ConfigObject->Get('TicketACL::Autoselect') || undef;
         my $ACLPreselection;
@@ -1480,7 +1325,7 @@ sub Run {
                         Name        => 'DynamicField_' . $DynamicFieldConfig->{Name} . "_$i",
                         Data        => $DataValues,
                         SelectedID  => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"}[$i],
-                        Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                        Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                         Max         => 100,
                     };
                 }
@@ -1505,7 +1350,7 @@ sub Run {
                 Name        => 'DynamicField_' . $DynamicFieldConfig->{Name},
                 Data        => $DataValues,
                 SelectedID  => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"},
-                Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                 Max         => 100,
             };
         }
@@ -1536,7 +1381,7 @@ sub Run {
                             Name        => 'DynamicField_' . $FrontendName . "_$i",
                             Data        => $DataValues,
                             SelectedID  => $SetField->{Values}{$FrontendName}[$i],
-                            Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                            Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                             Max         => 100,
                         };
                     }
@@ -1561,7 +1406,7 @@ sub Run {
                     Name        => 'DynamicField_' . $FrontendName,
                     Data        => $DataValues,
                     SelectedID  => $SetField->{Values}{$FrontendName},
-                    Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                    Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                     Max         => 100,
                 };
             }
@@ -1638,7 +1483,6 @@ sub Run {
 
         # update ticket body and attachements if needed.
         if ( $ChangedStdFields{StandardTemplateID} ) {
-            my @TicketAttachments;
             my $TemplateText;
 
             # remove all attachments from the Upload cache
@@ -1662,60 +1506,6 @@ sub Run {
                     TicketID   => $Self->{TicketID},
                     UserID     => $Self->{UserID},
                 );
-
-                # if ReplyToArticle is given, get this article to generate
-                # the quoted article content
-                if ( $Self->{ReplyToArticle} ) {
-
-                    # get article to quote
-                    my $Body = $LayoutObject->ArticleQuote(
-                        TicketID          => $Self->{TicketID},
-                        ArticleID         => $Self->{ReplyToArticle},
-                        FormID            => $Self->{FormID},
-                        UploadCacheObject => $UploadCacheObject,
-                    );
-
-                    # prepare quoted body content
-                    $Body = $Self->_GetQuotedReplyBody(
-                        %{ $Self->{ReplyToArticleContent} },
-                        Body => $Body,
-                    );
-
-                    if ( $LayoutObject->{BrowserRichText} ) {
-                        $TemplateText = $TemplateText . '<br><br>' . $Body;
-                    }
-                    else {
-                        $TemplateText = $TemplateText . "\n\n" . $Body;
-                    }
-                }
-
-                # create StdAttachmentObject
-                my $StdAttachmentObject = $Kernel::OM->Get('Kernel::System::StdAttachment');
-
-                # add std. attachments to ticket
-                my %AllStdAttachments = $StdAttachmentObject->StdAttachmentStandardTemplateMemberList(
-                    StandardTemplateID => $GetParam{StandardTemplateID},
-                );
-                for ( sort keys %AllStdAttachments ) {
-                    my %AttachmentsData = $StdAttachmentObject->StdAttachmentGet( ID => $_ );
-                    $UploadCacheObject->FormIDAddFile(
-                        FormID      => $Self->{FormID},
-                        Disposition => 'attachment',
-                        %AttachmentsData,
-                    );
-                }
-
-                # send a list of attachments in the upload cache back to the clientside JavaScript
-                # which renders then the list of currently uploaded attachments
-                @TicketAttachments = $UploadCacheObject->FormIDGetAllFilesMeta(
-                    FormID => $Self->{FormID},
-                );
-
-                for my $Attachment (@TicketAttachments) {
-                    $Attachment->{Filesize} = $LayoutObject->HumanReadableDataSize(
-                        Size => $Attachment->{Filesize},
-                    );
-                }
             }
 
             @TemplateAJAX = (
@@ -1726,11 +1516,6 @@ sub Run {
                 {
                     Name => 'RichText',
                     Data => $TemplateText || '',
-                },
-                {
-                    Name     => 'TicketAttachments',
-                    Data     => \@TicketAttachments,
-                    KeepData => 1,
                 },
             );
         }
@@ -1752,72 +1537,6 @@ sub Run {
         );
     }
     else {
-
-        my $Body = '';
-
-        # if ReplyToArticle is given, get this article to generate
-        # the quoted article content
-        if ( $Self->{ReplyToArticle} ) {
-
-            # get article to quote
-            $Body = $LayoutObject->ArticleQuote(
-                TicketID          => $Self->{TicketID},
-                ArticleID         => $Self->{ReplyToArticle},
-                FormID            => $Self->{FormID},
-                UploadCacheObject => $UploadCacheObject,
-            );
-
-            # prepare quoted body content
-            $Body = $Self->_GetQuotedReplyBody(
-                %{ $Self->{ReplyToArticleContent} },
-                Body => $Body,
-            );
-        }
-
-        # if a body content was pre defined, add this before the quoted article content
-        if ( $GetParam{Body} ) {
-
-            # make sure body is rich text
-            if ( $LayoutObject->{BrowserRichText} && !$Self->{ArticleID} ) {
-                $GetParam{Body} = $LayoutObject->Ascii2RichText(
-                    String => $GetParam{Body},
-                );
-            }
-
-            $Body = $GetParam{Body} . $Body;
-        }
-
-        # fillup configured default vars
-        if ( $Body eq '' && $Config->{Body} ) {
-            $Body = $LayoutObject->Output(
-                Template => $Config->{Body},
-            );
-
-            # make sure body is rich text
-            if ( $LayoutObject->{BrowserRichText} ) {
-                $Body = $LayoutObject->Ascii2RichText(
-                    String => $Body,
-                );
-            }
-        }
-
-        # set Body var to calculated content
-        $GetParam{Body} = $Body;
-
-        my %SafetyCheckResult = $Kernel::OM->Get('Kernel::System::HTMLUtils')->Safety(
-            String => $GetParam{Body},
-
-            # Strip out external content if BlockLoadingRemoteContent is enabled.
-            NoExtSrcLoad => $ConfigObject->Get('Ticket::Frontend::BlockLoadingRemoteContent'),
-
-            # Disallow potentially unsafe content.
-            NoApplet     => 1,
-            NoObject     => 1,
-            NoEmbed      => 1,
-            NoSVG        => 1,
-            NoJavaScript => 1,
-        );
-        $GetParam{Body} = $SafetyCheckResult{String};
 
         if ( $Self->{ReplyToArticle} ) {
             my $TicketSubjectRe = $ConfigObject->Get('Ticket::SubjectRe') || 'Re';
@@ -1871,7 +1590,7 @@ sub Run {
                     $GetParam{DynamicField}{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $ArticleData{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
                 }
                 else {
-                    $GetParam{DynamicField}{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $DynamicFieldConfig->{Config}->{DefaultValue} || '';
+                    $GetParam{DynamicField}{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $DynamicFieldConfig->{Config}{DefaultValue} || '';
                 }
             }
         }
@@ -2138,7 +1857,6 @@ sub Run {
                 HideAutoselected => $HideAutoselectedJSON,
                 Visibility       => $DynFieldStates{Visibility},
                 DFPossibleValues => \%DynamicFieldPossibleValues,
-                Attachments      => \@ArticleAttachments
             ),
             $LayoutObject->Footer(
                 Type => 'Small',
@@ -2229,7 +1947,7 @@ sub _Mask {
             UserID => $Self->{UserID},
         );
         $Param{TypeStrg} = $LayoutObject->BuildSelection(
-            Class        => 'Validate_Required Modernize FormUpdate ' . ( $Param{Errors}->{TypeIDInvalid} || '' ),
+            Class        => 'Validate_Required Modernize FormUpdate ' . ( $Param{Errors}{TypeIDInvalid} || '' ),
             Data         => \%Type,
             Name         => 'TypeID',
             SelectedID   => $Param{TypeID},
@@ -2409,8 +2127,8 @@ sub _Mask {
         if ( $Param{OldOwnerID} ) {
             $OldOwnerSelectedID = $Param{OldOwnerID};
         }
-        elsif ( $OldUserInfo[0]->{UserID} ) {
-            $OldOwnerSelectedID = $OldUserInfo[0]->{UserID} . '1';
+        elsif ( $OldUserInfo[0]{UserID} ) {
+            $OldOwnerSelectedID = $OldUserInfo[0]{UserID} . '1';
         }
 
         my $OldOwnerACL = $TicketObject->TicketAcl(
@@ -2634,35 +2352,17 @@ sub _Mask {
 
         if ( $Config->{NoteMandatory} ) {
             $Param{SubjectRequired} = 'Validate_Required';
-            $Param{BodyRequired}    = 'Validate_Required';
         }
         else {
             $Param{SubjectRequired} = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
-            $Param{BodyRequired}    = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
         }
 
         # set customer visibility of this note to the same value as the article for whom this is the reply
         if ( $Self->{ReplyToArticle} && !defined $Param{IsVisibleForCustomer} ) {
-            $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}->{IsVisibleForCustomer};
+            $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}{IsVisibleForCustomer};
         }
         elsif ( !defined $Param{IsVisibleForCustomer} ) {
             $Param{IsVisibleForCustomer} = $Config->{IsVisibleForCustomerDefault};
-        }
-
-        # show attachments
-        ATTACHMENT:
-        for my $Attachment ( @{ $Param{Attachments} } ) {
-            if (
-                $Attachment->{ContentID}
-                && $LayoutObject->{BrowserRichText}
-                && ( $Attachment->{ContentType} =~ /image/i )
-                && ( $Attachment->{Disposition} eq 'inline' )
-                )
-            {
-                next ATTACHMENT;
-            }
-
-            push @{ $Param{AttachmentList} }, $Attachment;
         }
 
         # render article type dynamic fields
@@ -2719,7 +2419,7 @@ sub _Mask {
         my %ReplyToUserIDs;
         if ( $Self->{ReplyToArticle} ) {
             my @ReplyToParts = $EmailParserObject->SplitAddressLine(
-                Line => $Self->{ReplyToArticleContent}->{To} || '',
+                Line => $Self->{ReplyToArticleContent}{To} || '',
             );
 
             REPLYTOPART:
@@ -3227,111 +2927,6 @@ sub _GetPriorities {
     return \%Priorities;
 }
 
-sub _GetQuotedReplyBody {
-    my ( $Self, %Param ) = @_;
-
-    # get needed objects
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    if ( $LayoutObject->{BrowserRichText} ) {
-
-        # rewrap body if exists
-        if ( $Param{Body} ) {
-            $Param{Body} =~ s/\t/ /g;
-            my $Quote = $LayoutObject->Ascii2Html(
-                Text           => $ConfigObject->Get('Ticket::Frontend::Quote') || '',
-                HTMLResultMode => 1,
-            );
-            if ($Quote) {
-
-                # quote text
-                $Param{Body} = "<blockquote type=\"cite\">$Param{Body}</blockquote>\n";
-
-                # cleanup not compat. tags
-                $Param{Body} = $LayoutObject->RichTextDocumentCleanup(
-                    String => $Param{Body},
-                );
-
-                my $ResponseFormat = $LayoutObject->{LanguageObject}->FormatTimeString( $Param{CreateTime}, 'DateFormat', 'NoSeconds' );
-                $ResponseFormat .= ' - ' . $Param{From} . ' ';
-                $ResponseFormat
-                    .= $LayoutObject->{LanguageObject}->Translate('wrote') . ':';
-
-                $Param{Body} = $ResponseFormat . $Param{Body};
-
-            }
-            else {
-                $Param{Body} = "<br/>" . $Param{Body};
-
-                if ( $Param{CreateTime} ) {
-                    $Param{Body} = $LayoutObject->{LanguageObject}->Translate('Date') .
-                        ": $Param{CreateTime}<br/>" . $Param{Body};
-                }
-
-                for (qw(Subject ReplyTo Reply-To Cc To From)) {
-                    if ( $Param{$_} ) {
-                        $Param{Body} = $LayoutObject->{LanguageObject}->Translate($_) .
-                            ": $Param{$_}<br/>" . $Param{Body};
-                    }
-                }
-
-                my $From = $LayoutObject->Ascii2RichText(
-                    String => $Param{From},
-                );
-
-                my $MessageFrom = $LayoutObject->{LanguageObject}->Translate('Message from');
-                my $EndMessage  = $LayoutObject->{LanguageObject}->Translate('End message');
-
-                $Param{Body} = "<br/>---- $MessageFrom $From ---<br/><br/>" . $Param{Body};
-                $Param{Body} .= "<br/>---- $EndMessage ---<br/>";
-            }
-        }
-    }
-    else {
-
-        # prepare body, subject, ReplyTo ...
-        # rewrap body if exists
-        if ( $Param{Body} ) {
-            $Param{Body} =~ s/\t/ /g;
-            my $Quote = $ConfigObject->Get('Ticket::Frontend::Quote');
-            if ($Quote) {
-                $Param{Body} =~ s/\n/\n$Quote /g;
-                $Param{Body} = "\n$Quote " . $Param{Body};
-
-                my $ResponseFormat = $LayoutObject->{LanguageObject}->FormatTimeString( $Param{CreateTime}, 'DateFormat', 'NoSeconds' );
-                $ResponseFormat .= ' - ' . $Param{From} . ' ';
-                $ResponseFormat
-                    .= $LayoutObject->{LanguageObject}->Translate('wrote') . ":\n";
-
-                $Param{Body} = $ResponseFormat . $Param{Body};
-            }
-            else {
-                $Param{Body} = "\n" . $Param{Body};
-                if ( $Param{CreateTime} ) {
-                    $Param{Body} = $LayoutObject->{LanguageObject}->Translate('Date') .
-                        ": $Param{CreateTime}\n" . $Param{Body};
-                }
-
-                for (qw(Subject ReplyTo Reply-To Cc To From)) {
-                    if ( $Param{$_} ) {
-                        $Param{Body} = $LayoutObject->{LanguageObject}->Translate($_) .
-                            ": $Param{$_}\n" . $Param{Body};
-                    }
-                }
-
-                my $MessageFrom = $LayoutObject->{LanguageObject}->Translate('Message from');
-                my $EndMessage  = $LayoutObject->{LanguageObject}->Translate('End message');
-
-                $Param{Body} = "\n---- $MessageFrom $Param{From} ---\n\n" . $Param{Body};
-                $Param{Body} .= "\n---- $EndMessage ---\n";
-            }
-        }
-    }
-
-    return $Param{Body};
-}
-
 sub _GetStandardTemplates {
     my ( $Self, %Param ) = @_;
 
@@ -3393,221 +2988,6 @@ sub _GetQueues {
     );
 
     return \%Queues;
-}
-
-sub _LoadArticleEdit {
-    my ( $Self, %Param ) = @_;
-
-    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
-    my $LayoutObject      = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject       = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
-
-    my %Ticket               = %{ $Param{Ticket} };
-    my %ArticleData          = %{ $Param{ArticleData} };
-    my $ArticleBackendObject = $Param{ArticleBackendObject};
-
-    # Check if there is HTML body attachment.
-    my %AttachmentIndexHTMLBody = $ArticleBackendObject->ArticleAttachmentIndex(
-        ArticleID    => $ArticleData{ArticleID},
-        OnlyHTMLBody => 1,
-    );
-    ( $ArticleData{HTMLBodyAttachmentID} ) = sort keys %AttachmentIndexHTMLBody;
-
-    if ( $ArticleData{HTMLBodyAttachmentID} ) {
-        $ArticleData{MimeType} = 'text/html';
-
-        # Render article content.
-        $ArticleData{Body} = $LayoutObject->ArticlePreview(
-            TicketID            => $Ticket{TicketID},
-            ArticleID           => $ArticleData{ArticleID},
-            ShowDeletedArticles => 1
-        );
-    }
-    else {
-        return %ArticleData;
-    }
-
-    my $Content = $LayoutObject->Output(
-        Template => '[% Data.HTML %]',
-        Data     => {
-            HTML => $ArticleData{Body},
-        },
-    );
-
-    my %Data = (
-        Content            => $Content,
-        ContentAlternative => '',
-        ContentID          => '',
-        ContentType        => 'text/html; charset="utf-8"',
-        Disposition        => 'inline',
-        FilesizeRaw        => bytes::length($Content),
-    );
-
-    # set download type to inline
-    $ConfigObject->Set(
-        Key   => 'AttachmentDownloadType',
-        Value => 'inline'
-    );
-
-    # generate base url
-    my $URL = "Action=PictureUpload;FormID=$Self->{FormID};ContentID=";
-
-    # set filename for inline viewing
-    $Data{Filename} = "Ticket-$Ticket{TicketNumber}-ArticleID-$ArticleData{ArticleID}.html";
-
-    # replace links to inline images in html content
-    my %AtmBox = $ArticleBackendObject->ArticleAttachmentIndex(
-        ArticleID => $ArticleData{ArticleID},
-    );
-
-    for my $FileID ( keys %AtmBox ) {
-        my %FileData = $ArticleBackendObject->ArticleAttachment(
-            ArticleID              => $ArticleData{ArticleID},
-            FileID                 => $FileID,
-            ContentMayBeFilehandle => 0,
-        );
-
-        if ( $FileData{Disposition} eq 'inline' && $FileData{Filename} ne 'file-2' ) {
-
-            # add uploaded file to upload cache
-            $UploadCacheObject->FormIDAddFile(
-                FormID      => $Self->{FormID},
-                Filename    => $FileData{Filename},
-                Content     => $FileData{Content},
-                ContentType => $FileData{ContentType} . '; name="' . $FileData{Filename} . '"',
-                Disposition => $FileData{Disposition},
-            );
-        }
-    }
-
-    # get new content id
-    my %ContentIDs;
-
-    my @AttachmentMeta = $UploadCacheObject->FormIDGetAllFilesMeta(
-        FormID => $Self->{FormID}
-    );
-
-    for my $Attachment (@AttachmentMeta) {
-        $ContentIDs{ $Attachment->{Filename} } = $Attachment->{ContentID};
-    }
-
-    # Do not load external images if 'BlockLoadingRemoteContent' is enabled.
-    my $LoadExternalImages = 1;
-    if ( $ConfigObject->Get('Ticket::Frontend::BlockLoadingRemoteContent') ) {
-        $LoadExternalImages = 0;
-    }
-
-    # reformat rich text document to have correct charset and links to
-    # inline documents
-    %Data = $LayoutObject->RichTextDocumentServe(
-        Data               => \%Data,
-        URL                => $URL,
-        Attachments        => \%AtmBox,
-        ContentIDs         => \%ContentIDs,
-        LoadExternalImages => $LoadExternalImages,
-    );
-
-    # if there is unexpectedly pgp decrypted content in the html email (OE),
-    # we will use the article body (plain text) from the database as fall back
-    # see bug#9672
-    if (
-        $Data{Content} =~ m{
-        ^ .* -----BEGIN [ ] PGP [ ] MESSAGE-----  .* $      # grep PGP begin tag
-        .+                                                  # PGP parts may be nested in html
-        ^ .* -----END [ ] PGP [ ] MESSAGE-----  .* $        # grep PGP end tag
-    }xms
-        )
-    {
-        # html quoting
-        my $HTMLBody = $LayoutObject->Ascii2Html(
-            NewLine        => $ConfigObject->Get('DefaultViewNewLine'),
-            Text           => $ArticleData{Body},
-            VMax           => $ConfigObject->Get('DefaultViewLines') || 5000,
-            HTMLResultMode => 1,
-            LinkFeature    => 1,
-        );
-
-        $Data{Content} = $HTMLBody;
-    }
-
-    $ArticleData{Body} = $Data{Content};
-    delete $ArticleData{IsEdited};
-
-    return %ArticleData;
-}
-
-sub _CopyArticleAttachmentsToUploadCache {
-    my ( $Self, %Param ) = @_;
-
-    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
-    my $LayoutObject      = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject       = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
-    my %GetParam;
-
-    my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
-
-    my $ArticleBackendObject = $ArticleObject->BackendForArticle(
-        TicketID  => $Self->{TicketID},
-        ArticleID => $Param{ArticleID},
-    );
-
-    # define if rich text should be used
-    $Self->{RichText} = $ConfigObject->Get('Ticket::Frontend::ZoomRichTextForce')
-        || $LayoutObject->{BrowserRichText}
-        || 0;
-
-    # Always exclude plain text attachment, but exclude HTML body only if rich text is enabled.
-    $Self->{ExcludeAttachments} = {
-        ExcludePlainText => 1,
-        ExcludeHTMLBody  => $Self->{RichText},
-        ExcludeInline    => $Self->{RichText},
-    };
-
-    # Get attachment index (excluding body attachments).
-    my %AtmIndex = $ArticleBackendObject->ArticleAttachmentIndex(
-        ArticleID => $Param{ArticleID},
-        %{ $Self->{ExcludeAttachments} },
-    );
-
-    FILE:
-    for my $FileID ( sort keys %AtmIndex ) {
-
-        # get an attachment
-        my %AttachmentData = $ArticleBackendObject->ArticleAttachment(
-            ArticleID              => $Param{ArticleID},
-            FileID                 => $FileID,
-            ContentMayBeFilehandle => 0,
-        );
-
-        next FILE if !$AttachmentData{Content};
-
-        # add attachment to the upload cache
-        my $Success = $UploadCacheObject->FormIDAddFile(
-            FormID      => $Self->{FormID},
-            Disposition => 'attachment',
-            Filename    => $AttachmentData{Filename},
-            Content     => $AttachmentData{Content},
-            ContentType => $AttachmentData{ContentType},
-        );
-    }
-
-    # get pre loaded attachment
-    my @Attachments = $UploadCacheObject->FormIDGetAllFilesData(
-        FormID => $Self->{FormID},
-    );
-
-    # get submit attachment
-    my %UploadStuff = $ParamObject->GetUploadAll(
-        Param => 'FileUpload',
-    );
-
-    if (%UploadStuff) {
-        push @Attachments, \%UploadStuff;
-    }
-
-    return @Attachments;
 }
 
 1;
