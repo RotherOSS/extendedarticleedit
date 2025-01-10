@@ -192,13 +192,6 @@
             <Item ValueType="Checkbox">0</Item>
         </Value>
     </Setting>
-    <Setting Name="Ticket::Frontend::AgentTicketArticleChange###FormDraft" Required="1" Valid="1">
-        <Description Translatable="1">Allows to save current work as draft in the article change screen of the agent interface.</Description>
-        <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
-        <Value>
-            <Item ValueType="Checkbox">0</Item>
-        </Value>
-    </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###HistoryType" Required="0" Valid="1">
         <Description Translatable="1">Defines the history type for the article change screen action, which gets used for ticket history in the agent interface.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
