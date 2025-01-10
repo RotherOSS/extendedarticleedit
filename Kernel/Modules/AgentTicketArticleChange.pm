@@ -42,6 +42,8 @@ sub new {
 
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
+    $Self->{ArticleID} = $ParamObject->GetParam( Param => 'ArticleID' );
+
     # frontend specific config
     my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::$Self->{Action}");
 
@@ -246,8 +248,17 @@ sub Run {
         DynamicFields => 1,
     );
 
+    my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
+        TicketID  => $Self->{TicketID},
+        ArticleID => $Self->{ArticleID},
+    );
+
     my %GetParam;
-    my %ArticleData;
+    my %ArticleData = $ArticleBackendObject->ArticleGet(
+        TicketID      => $Self->{TicketID},
+        ArticleID     => $Self->{ArticleID},
+        DynamicFields => 1,
+    );
 
     $LayoutObject->Block(
         Name => 'Properties',
