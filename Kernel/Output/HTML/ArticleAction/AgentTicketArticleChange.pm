@@ -2,7 +2,7 @@
 # OTOBO is a web-based ticketing system for service organisations.
 # --
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2019-2024 Rother OSS GmbH, https://otobo.io/
+# Copyright (C) 2019-2025 Rother OSS GmbH, https://otobo.io/
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -63,7 +63,7 @@ sub CheckAccess {
     return if !$ConfigObject->Get('Frontend::Module')->{AgentTicketArticleChange};
 
     # check Acl
-    return if !$Param{AclActionLookup}->{AgentTicketArticleChange};
+    return if !$Param{AclActionLookup}{AgentTicketArticleChange};
 
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -71,7 +71,7 @@ sub CheckAccess {
     if ( $Config->{Permission} ) {
         my $Ok = $TicketObject->TicketPermission(
             Type     => $Config->{Permission},
-            TicketID => $Param{Ticket}->{TicketID},
+            TicketID => $Param{Ticket}{TicketID},
             UserID   => $Param{UserID},
             LogNo    => 1,
         );
@@ -79,11 +79,11 @@ sub CheckAccess {
     }
     if ( $Config->{RequiredLock} ) {
         my $Locked = $TicketObject->TicketLockGet(
-            TicketID => $Param{Ticket}->{TicketID}
+            TicketID => $Param{Ticket}{TicketID}
         );
         if ($Locked) {
             my $AccessOk = $TicketObject->OwnerCheck(
-                TicketID => $Param{Ticket}->{TicketID},
+                TicketID => $Param{Ticket}{TicketID},
                 OwnerID  => $Param{UserID},
             );
             return if !$AccessOk;
@@ -106,7 +106,7 @@ sub GetConfig {
         }
     }
 
-    return if $Param{Article}->{DeletedVersionID};
+    return if $Param{Article}{DeletedVersionID};
 
     my %MenuItem = (
         ItemType    => 'Link',
