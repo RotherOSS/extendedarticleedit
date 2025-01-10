@@ -150,6 +150,13 @@
             <Item ValueType="Checkbox">1</Item>
         </Value>
     </Setting>
+    <Setting Name="Ticket::Frontend::AgentTicketArticleChange###IsVisibleForCustomer" Required="1" Valid="1">
+        <Description Translatable="1">Sets the default article customer visibility in the article change screen of the agent interface.</Description>
+        <Navigation>Frontend::Agent::View::TicketPhoneNew</Navigation>
+        <Value>
+            <Item ValueType="Checkbox">1</Item>
+        </Value>
+    </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###IsVisibleForCustomerDefault" Required="0" Valid="1">
         <Description Translatable="1">Defines if the note in the article change screen of the agent interface is visible for the customer by default.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
