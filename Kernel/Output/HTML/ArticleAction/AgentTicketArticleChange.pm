@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::Output::HTML::ArticleAction::AgentTicketArticleEdit;
+package Kernel::Output::HTML::ArticleAction::AgentTicketArticleChange;
 
 use strict;
 use warnings;
@@ -55,19 +55,19 @@ sub CheckAccess {
 
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
-    return if $Param{ChannelName} ne 'Internal';
-    return if $Param{Article}->{IsVisibleForCustomer};
+    # TODO check for configured channels?
+    # return if $Param{ChannelName} ne 'Internal';
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
     # check if module is registered
-    return if !$ConfigObject->Get('Frontend::Module')->{AgentTicketArticleEdit};
+    return if !$ConfigObject->Get('Frontend::Module')->{AgentTicketArticleChange};
 
     # check Acl
-    return if !$Param{AclActionLookup}->{AgentTicketArticleEdit};
+    return if !$Param{AclActionLookup}->{AgentTicketArticleChange};
 
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-    my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleEdit');
+    my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleChange');
     if ( $Config->{Permission} ) {
         my $Ok = $TicketObject->TicketPermission(
             Type     => $Config->{Permission},
@@ -110,11 +110,11 @@ sub GetConfig {
 
     my %MenuItem = (
         ItemType    => 'Link',
-        Description => Translatable('Edit this article'),
-        Name        => Translatable('Edit'),
+        Description => Translatable('Change this article'),
+        Name        => Translatable('Change'),
         Class       => 'AsPopup PopupType_TicketAction',
         Link        =>
-            "Action=AgentTicketArticleEdit;TicketID=$Param{Ticket}->{TicketID};ArticleID=$Param{Article}->{ArticleID}",
+            "Action=AgentTicketArticleChange;TicketID=$Param{Ticket}->{TicketID};ArticleID=$Param{Article}->{ArticleID}",
     );
 
     return ( \%MenuItem );
