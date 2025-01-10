@@ -52,7 +52,7 @@ sub new {
         Valid => 1,
 
         # only screens that add notes can modify Article dynamic fields
-        ObjectType  => $Config->{Note} ? [ 'Ticket', 'Article' ] : ['Ticket'],
+        ObjectType  => [ 'Ticket', 'Article' ],
         FieldFilter => $Config->{DynamicField} || {},
     );
 
@@ -2192,7 +2192,7 @@ sub _Mask {
     # End Widget Ticket Actions
 
     # Widget Article
-    if ( $Config->{Note} ) {
+    if ( $Config->{Note} && ( $Config->{IsVisibleForCustomer} || $Config->{InvolvedAgents} || $Config->{InformAgent} ) ) {
 
         $Param{WidgetStatus} = 'Collapsed';
 
@@ -2351,7 +2351,7 @@ sub _Mask {
         }
 
         # show time accounting box
-        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
+        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
             if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
                 $LayoutObject->Block(
                     Name => 'TimeUnitsLabelMandatory',
