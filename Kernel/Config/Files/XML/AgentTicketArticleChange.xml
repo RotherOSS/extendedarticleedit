@@ -136,6 +136,13 @@
             <Item ValueType="Entity" ValueEntityType="State" ValueRegex="">open</Item>
         </Value>
     </Setting>
+    <Setting Name="Ticket::Frontend::AgentTicketArticleChange###Note" UserPreferencesGroup="Advanced" UserModificationPossible="1" Required="0" Valid="1">
+        <Description Translatable="1">Allows adding notes in the article change screen of the agent interface. Can be overwritten by Ticket::Frontend::NeedAccountedTime.</Description>
+        <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
+        <Value>
+            <Item ValueType="Checkbox">1</Item>
+        </Value>
+    </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###InvolvedAgent" UserPreferencesGroup="Advanced" UserModificationPossible="1" Required="1" Valid="1">
         <Description Translatable="1">Shows a list of all the involved agents on this ticket, in the article change screen of the agent interface.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>

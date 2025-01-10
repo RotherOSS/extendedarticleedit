@@ -2196,7 +2196,7 @@ sub _Mask {
 
         $Param{WidgetStatus} = 'Collapsed';
 
-        if ( $Config->{NoteMandatory} ) {
+        if ( $Config->{Note} ) {
             $Param{WidgetStatus} = 'Expanded';
         }
 
@@ -2343,7 +2343,7 @@ sub _Mask {
 
         # show time accounting box
         if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
-            if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{NoteMandatory} ) {
+            if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
                 $LayoutObject->Block(
                     Name => 'TimeUnitsLabelMandatory',
                     Data => \%Param,
