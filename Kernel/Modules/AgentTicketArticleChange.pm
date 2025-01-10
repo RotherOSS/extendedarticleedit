@@ -401,7 +401,7 @@ sub Run {
     PARAMETER:
     for my $Key (
         qw(
-            NewStateID NewPriorityID TimeUnits IsVisibleForCustomer Title Subject NewQueueID
+            NewStateID NewPriorityID TimeUnits IsVisibleForCustomer Title NewQueueID
             Year Month Day Hour Minute NewOwnerID NewResponsibleID TypeID ServiceID SLAID
             ReplyToArticle StandardTemplateID CreateArticle Title
         )
@@ -523,14 +523,6 @@ sub Run {
                 {
                     $Error{'DateInvalid'} = 'ServerError';
                 }
-            }
-        }
-
-        if ( $Config->{Note} && $Config->{NoteMandatory} ) {
-
-            # check subject
-            if ( !$GetParam{Subject} ) {
-                $Error{'SubjectInvalid'} = 'ServerError';
             }
         }
 
@@ -938,20 +930,8 @@ sub Run {
         if (
             $GetParam{CreateArticle}
             && $Config->{Note}
-            && ( $GetParam{Subject} )
             )
         {
-
-            if ( !$GetParam{Subject} ) {
-                if ( $Config->{Subject} ) {
-                    my $Subject = $LayoutObject->Output(
-                        Template => $Config->{Subject},
-                    );
-                    $GetParam{Subject} = $Subject;
-                }
-                $GetParam{Subject} = $GetParam{Subject}
-                    || $LayoutObject->{LanguageObject}->Translate('No subject');
-            }
 
             my $From = "\"$Self->{UserFullname}\" <$Self->{UserEmail}>";
             my @NotifyUserIDs;
@@ -1537,16 +1517,6 @@ sub Run {
         );
     }
     else {
-
-        if ( $Self->{ReplyToArticle} ) {
-            my $TicketSubjectRe = $ConfigObject->Get('Ticket::SubjectRe') || 'Re';
-            $GetParam{Subject} = $TicketSubjectRe . ': ' . $Self->{ReplyToArticleContent}{Subject};
-        }
-        elsif ( !defined $GetParam{Subject} && $Config->{Subject} ) {
-            $GetParam{Subject} = $LayoutObject->Output(
-                Template => $Config->{Subject},
-            );
-        }
 
         # use ticket values
         if ( $Config->{Queue} ) {
@@ -2350,13 +2320,6 @@ sub _Mask {
             $Param{WidgetStatus} = 'Expanded';
         }
 
-        if ( $Config->{NoteMandatory} ) {
-            $Param{SubjectRequired} = 'Validate_Required';
-        }
-        else {
-            $Param{SubjectRequired} = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
-        }
-
         # set customer visibility of this note to the same value as the article for whom this is the reply
         if ( $Self->{ReplyToArticle} && !defined $Param{IsVisibleForCustomer} ) {
             $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}{IsVisibleForCustomer};
@@ -2608,23 +2571,6 @@ sub _Mask {
                     }
                 }
             }
-        }
-
-        if ( $Config->{NoteMandatory} ) {
-            $LayoutObject->Block(
-                Name => 'SubjectLabelMandatory',
-            );
-            $LayoutObject->Block(
-                Name => 'RichTextLabelMandatory',
-            );
-        }
-        else {
-            $LayoutObject->Block(
-                Name => 'SubjectLabel',
-            );
-            $LayoutObject->Block(
-                Name => 'RichTextLabel',
-            );
         }
 
         # build text template string
