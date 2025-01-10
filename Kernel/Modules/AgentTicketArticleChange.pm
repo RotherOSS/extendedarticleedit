@@ -14,25 +14,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package <package>;
+package Kernel::Modules::AgentTicketArticleChange;
 
 use strict;
 use warnings;
 
-# core modules
-
-# CPAN modules
-
-# OTOBO modules
-
-sub new {
-my ( $Type, %Param ) = @_;
-
-# allocate new hash for object
-my $Self = {%Param};
-bless( $Self, $Type );
-
-return $Self;
-}
+use parent qw( Kernel::Modules::AgentTicketActionCommon );
 
 1;
