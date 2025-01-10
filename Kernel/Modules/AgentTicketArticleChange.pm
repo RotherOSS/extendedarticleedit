@@ -694,6 +694,7 @@ sub Run {
                 ),
                 $Self->_Mask(
                     %Ticket,
+                    %ArticleData,
                     %GetParam,
                     %Error,
                     Visibility       => \%Visibility,
@@ -1713,6 +1714,7 @@ sub Run {
             $Self->_Mask(
                 %GetParam,
                 %Ticket,
+                %ArticleData,
                 NewQueueID       => $GetParam{QueueID},
                 NewOwnerID       => $GetParam{NewUserID},
                 NewStateID       => $GetParam{NextStateID},
