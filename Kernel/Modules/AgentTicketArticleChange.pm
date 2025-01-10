@@ -192,6 +192,7 @@ sub Run {
     my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
     my $ParamObject             = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $FieldRestrictionsObject = $Kernel::OM->Get('Kernel::System::Ticket::FieldRestrictions');
+    my $ArticleObject           = $Kernel::OM->Get('Kernel::System::Ticket::Article');
 
     # check needed stuff
     if ( !$Self->{TicketID} ) {
@@ -248,7 +249,7 @@ sub Run {
         DynamicFields => 1,
     );
 
-    my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
+    my $ArticleBackendObject = $ArticleObject->BackendForArticle(
         TicketID  => $Self->{TicketID},
         ArticleID => $Self->{ArticleID},
     );
@@ -258,6 +259,9 @@ sub Run {
         TicketID      => $Self->{TicketID},
         ArticleID     => $Self->{ArticleID},
         DynamicFields => 1,
+    );
+    $ArticleData{TimeUnits} = $ArticleObject->ArticleAccountedTimeGet(
+        ArticleID => $Self->{ArticleID},
     );
 
     $LayoutObject->Block(
