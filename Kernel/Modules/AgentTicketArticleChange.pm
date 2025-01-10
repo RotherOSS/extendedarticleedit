@@ -42,52 +42,6 @@ sub new {
 
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
-    # get article for whom this should be a reply, if available
-    my $ReplyToArticle = $ParamObject->GetParam( Param => 'ReplyToArticle' ) || '';
-    my $TicketID       = $ParamObject->GetParam( Param => 'TicketID' )       || '';
-
-    # check if ReplyToArticle really belongs to the ticket
-    my %ReplyToArticleContent;
-    if ($ReplyToArticle) {
-
-        my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
-            TicketID  => $TicketID,
-            ArticleID => $ReplyToArticle,
-        );
-        %ReplyToArticleContent = $ArticleBackendObject->ArticleGet(
-            TicketID      => $TicketID,
-            ArticleID     => $ReplyToArticle,
-            DynamicFields => 0,
-            UserID        => $Self->{UserID}
-        );
-
-        $Self->{ReplyToArticle}        = $ReplyToArticle;
-        $Self->{ReplyToArticleContent} = \%ReplyToArticleContent;
-
-        # get sender of original note (to inform sender about answer)
-        if ( $ReplyToArticleContent{CreateBy} ) {
-            my @ReplyToSenderID = ( $ReplyToArticleContent{CreateBy} );
-            $Self->{ReplyToSenderUserID} = \@ReplyToSenderID;
-        }
-
-        # if article belongs to other ticket, don't use it as reply
-        if ( $ReplyToArticleContent{TicketID} ne $Self->{TicketID} ) {
-            $Self->{ReplyToArticle} = "";
-        }
-
-        # if article is not of type note-internal, don't use it as reply
-        if (
-            $ArticleBackendObject->ChannelNameGet() ne 'Internal'
-            || (
-                $ArticleBackendObject->ChannelNameGet() eq 'Internal'
-                && $ReplyToArticleContent{SenderType} ne 'agent'
-            )
-            )
-        {
-            $Self->{ReplyToArticle} = "";
-        }
-    }
-
     # frontend specific config
     my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::$Self->{Action}");
 
@@ -298,9 +252,8 @@ sub Run {
     $LayoutObject->Block(
         Name => 'Properties',
         Data => {
-            FormID         => $Self->{FormID},
-            ReplyToArticle => $Self->{ReplyToArticle},
-            ArticleID      => $Self->{ArticleID} || '',
+            FormID    => $Self->{FormID},
+            ArticleID => $Self->{ArticleID} || '',
             %Ticket,
             %Param,
         },
@@ -398,7 +351,6 @@ sub Run {
         qw(
             NewStateID NewPriorityID TimeUnits IsVisibleForCustomer Title NewQueueID
             Year Month Day Hour Minute NewOwnerID NewResponsibleID TypeID ServiceID SLAID
-            ReplyToArticle CreateArticle Title
         )
         )
     {
@@ -599,7 +551,6 @@ sub Run {
         #   (accounted time can only be stored if and article is generated)
         if (
             $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
-            && $GetParam{CreateArticle}
             && $GetParam{TimeUnits} eq ''
             )
         {
@@ -687,9 +638,9 @@ sub Run {
 
             $DynamicFieldPossibleValues{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $PossibleValuesFilter;
 
-            # Do not validate only if object type is Article and CreateArticle value is not defined, or Field is invisible.
+            # Do not validate only if object type is Article or Field is invisible.
             if (
-                !( $DynamicFieldConfig->{ObjectType} eq 'Article' && !$GetParam{CreateArticle} )
+                $DynamicFieldConfig->{ObjectType} ne 'Article'
                 && $Visibility{ 'DynamicField_' . $DynamicFieldConfig->{Name} }
                 )
             {
@@ -919,17 +870,10 @@ sub Run {
             }
         }
 
-        if (
-            $GetParam{CreateArticle}
-            && $Config->{Note}
-            )
-        {
+        if ( $Config->{Note} ) {
 
             my $From = "\"$Self->{UserFullname}\" <$Self->{UserEmail}>";
             my @NotifyUserIDs;
-
-            # get list of users that will be informed without selection in informed/involved list
-            my @UserListWithoutSelection = split /,/, $ParamObject->GetParam( Param => 'UserListWithoutSelection' ) || "";
 
             # get inform user list
             my @InformUserID = $ParamObject->GetArray( Param => 'InformUserID' );
@@ -943,10 +887,6 @@ sub Run {
 
             if ( $Config->{InvolvedAgent} ) {
                 push @NotifyUserIDs, @InvolvedUserID;
-            }
-
-            if ( $Self->{ReplyToArticle} ) {
-                push @NotifyUserIDs, @UserListWithoutSelection;
             }
 
             # TODO  change to articleupdate
@@ -2256,20 +2196,11 @@ sub _Mask {
 
         $Param{WidgetStatus} = 'Collapsed';
 
-        if (
-            $Config->{NoteMandatory}
-            || $Self->{ReplyToArticle}
-            || $Param{CreateArticle}
-            )
-        {
+        if ( $Config->{NoteMandatory} ) {
             $Param{WidgetStatus} = 'Expanded';
         }
 
-        # set customer visibility of this note to the same value as the article for whom this is the reply
-        if ( $Self->{ReplyToArticle} && !defined $Param{IsVisibleForCustomer} ) {
-            $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}{IsVisibleForCustomer};
-        }
-        elsif ( !defined $Param{IsVisibleForCustomer} ) {
+        if ( !defined $Param{IsVisibleForCustomer} ) {
             $Param{IsVisibleForCustomer} = $Config->{IsVisibleForCustomerDefault};
         }
 
@@ -2315,58 +2246,6 @@ sub _Mask {
             $ShownUsers{$UserID} = $AllGroupsMembers{$UserID};
         }
 
-        # create email parser object
-        my $EmailParserObject = Kernel::System::EmailParser->new(
-            Mode  => 'Standalone',
-            Debug => 0,
-        );
-
-        # check and retrieve involved and informed agents of ReplyTo Note
-        my @ReplyToUsers;
-        my %ReplyToUsersHash;
-        my %ReplyToUserIDs;
-        if ( $Self->{ReplyToArticle} ) {
-            my @ReplyToParts = $EmailParserObject->SplitAddressLine(
-                Line => $Self->{ReplyToArticleContent}{To} || '',
-            );
-
-            REPLYTOPART:
-            for my $SingleReplyToPart (@ReplyToParts) {
-                my $ReplyToAddress = $EmailParserObject->GetEmailAddress(
-                    Email => $SingleReplyToPart,
-                );
-
-                next REPLYTOPART if !$ReplyToAddress;
-                push @ReplyToUsers, $ReplyToAddress;
-            }
-
-            $ReplyToUsersHash{$_}++ for @ReplyToUsers;
-
-            # get user ids of available users
-            for my $UserID ( sort keys %ShownUsers ) {
-                my %UserData = $UserObject->GetUserData(
-                    UserID => $UserID,
-                );
-
-                my $UserEmail = $UserData{UserEmail};
-                if ( $ReplyToUsersHash{$UserEmail} ) {
-                    $ReplyToUserIDs{$UserID} = 1;
-                }
-            }
-
-            # add original note sender to list of user ids
-            for my $UserID ( sort @{ $Self->{ReplyToSenderUserID} } ) {
-
-                # if sender replies to himself, do not include sender in list
-                if ( $UserID ne $Self->{UserID} ) {
-                    $ReplyToUserIDs{$UserID} = 1;
-                }
-            }
-
-            # remove user id of active user
-            delete $ReplyToUserIDs{ $Self->{UserID} };
-        }
-
         if ( $Config->{InformAgent} || $Config->{InvolvedAgent} ) {
             $LayoutObject->Block(
                 Name => 'InformAdditionalAgents',
@@ -2408,12 +2287,6 @@ sub _Mask {
                     Value => $Value,
                 };
                 $Counter++;
-
-                # add involved user as selected entries, if available in ReplyToAddresses list
-                if ( $Self->{ReplyToArticle} && $ReplyToUserIDs{ $User->{UserID} } ) {
-                    push @InvolvedUserID, $User->{UserID};
-                    delete $ReplyToUserIDs{ $User->{UserID} };
-                }
             }
 
             my $InvolvedAgentSize = $ConfigObject->Get('Ticket::Frontend::InvolvedAgentMaxSize') || 3;
@@ -2443,17 +2316,6 @@ sub _Mask {
                 $InformAgents{$UserID} = $AllGroupsMembers{$UserID};
             }
 
-            if ( $Self->{ReplyToArticle} ) {
-
-                # get email address of all users and compare to replyto-addresses
-                for my $UserID ( sort keys %InformAgents ) {
-                    if ( $ReplyToUserIDs{$UserID} ) {
-                        push @InformUserID, $UserID;
-                        delete $ReplyToUserIDs{$UserID};
-                    }
-                }
-            }
-
             my $InformAgentSize = $ConfigObject->Get('Ticket::Frontend::InformAgentMaxSize')
                 || 3;
             $Param{OptionStrg} = $LayoutObject->BuildSelection(
@@ -2479,45 +2341,6 @@ sub _Mask {
             );
         }
 
-        # show list of agents, that receive this note (ReplyToNote)
-        # at least sender of original note and all recepients of the original note
-        # that couldn't be selected with involved/inform agents
-        if ( $Self->{ReplyToArticle} ) {
-
-            my $UsersHashSize = keys %ReplyToUserIDs;
-            my $Counter       = 0;
-            $Param{UserListWithoutSelection} = join( ',', keys %ReplyToUserIDs );
-
-            if ( $UsersHashSize > 0 ) {
-                $LayoutObject->Block(
-                    Name => 'InformAgentsWithoutSelection',
-                    Data => \%Param,
-                );
-
-                for my $UserID ( sort keys %ReplyToUserIDs ) {
-                    $Counter++;
-
-                    my %UserData = $UserObject->GetUserData(
-                        UserID => $UserID,
-                    );
-
-                    $LayoutObject->Block(
-                        Name => 'InformAgentsWithoutSelectionSingleUser',
-                        Data => \%UserData,
-                    );
-
-                    # output a separator (InformAgentsWithoutSelectionSingleUserSeparator),
-                    # if not last entry
-                    if ( $Counter < $UsersHashSize ) {
-                        $LayoutObject->Block(
-                            Name => 'InformAgentsWithoutSelectionSingleUserSeparator',
-                            Data => \%UserData,
-                        );
-                    }
-                }
-            }
-        }
-
         # show time accounting box
         if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
             if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{NoteMandatory} ) {
@@ -2535,7 +2358,9 @@ sub _Mask {
                 );
 
                 $Param{TimeUnitsRequired} = $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
-                    ? 'Validate_DependingRequiredAND Validate_Depending_CreateArticle'
+
+                    # TODO check what this does and if it works
+                    ? 'Validate_DependingRequiredAND'
                     : '';
             }
             $LayoutObject->Block(
