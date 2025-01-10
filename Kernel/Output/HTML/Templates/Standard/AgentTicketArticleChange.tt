@@ -24,40 +24,14 @@
     <input type="hidden" name="ReplyToArticle" value="[% Data.ReplyToArticle | html %]"/>
     <input type="hidden" name="Expand" id="Expand" value=""/>
     <input type="hidden" name="FormID" value="[% Data.FormID | html %]"/>
-    <input type="hidden" name="FormDraftTitle" value="[% Data.FormDraftTitle | html %]"/>
-    <input type="hidden" name="FormDraftID" value="[% Data.FormDraftID | html %]"/>
-    <input type="hidden" name="FormDraftAction" id="FormDraftAction" />
 
     <div class="LayoutPopup ARIARoleMain">
         <div class="Header">
             <ul class="HeaderPopup">
                 <li class="HeaderPopupleft">
                     <h1>
-[% RenderBlockStart("HeaderAgentTicketFreeText") %]
-[% Translate("Change Free Text of %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketFreeText") %]
-[% RenderBlockStart("HeaderAgentTicketOwner") %]
-[% Translate("Change Owner of %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketOwner") %]
-[% RenderBlockStart("HeaderAgentTicketClose") %]
-[% Translate("Close %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketClose") %]
-[% RenderBlockStart("HeaderAgentTicketNote") %]
-[% Translate("Add Note to %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketNote") %]
-[% RenderBlockStart("HeaderAgentTicketPending") %]
-[% Translate("Set Pending Time for %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketPending") %]
-[% RenderBlockStart("HeaderAgentTicketPriority") %]
-[% Translate("Change Priority of %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketPriority") %]
-[% RenderBlockStart("HeaderAgentTicketResponsible") %]
-[% Translate("Change Responsible of %s%s%s", Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketResponsible") %]
-[% RenderBlockStart("HeaderAgentTicketArticleEdit") %]
-[% Translate("Edit Article \"%s\" of %s%s%s", Data.ArticleTitle, Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
-[% RenderBlockEnd("HeaderAgentTicketArticleEdit") %]
-                 &mdash; [% Data.Title | html %]
+                        [% Translate("Change Article \"%s\" of %s%s%s", Data.ArticleTitle, Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
+                     &mdash; [% Data.Title | html %]
             </h1>
                 </li>
 [% RenderBlockStart("TicketBack") %]
@@ -76,7 +50,6 @@
             </ul>
         </div>
         <div class="Content">
-            [% INCLUDE "FormElements/DraftNotifications.tt" %]
 [% RenderBlockStart("WidgetTicketActions") %]
             <div class="WidgetSimple Expanded">
                 <div class="Header">
@@ -328,18 +301,6 @@
 [% RenderBlockEnd("InformAgentsWithoutSelection") %]
 
                         <fieldset class="TableLike FixedLabel">
-[% RenderBlockStart("SubjectLabel") %]
-                            <label for="Subject">[% Translate("Subject") | html %]:</label>
-[% RenderBlockEnd("SubjectLabel") %]
-[% RenderBlockStart("SubjectLabelMandatory") %]
-                            <label class="Mandatory" for="Subject"><span class="Marker">*</span>[% Translate("Subject") | html %]:</label>
-[% RenderBlockEnd("SubjectLabelMandatory") %]
-                            <div class="Field">
-                                <input type="text" id="Subject" name="Subject" value="[% Data.Subject | html %]" class="W75pc Validate [% Data.SubjectInvalid %] [% Data.SubjectRequired %]"/>
-                                <div id="SubjectError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
-                                <div id="SubjectServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
-                            </div>
-                            <div class="Clear"></div>
 [% RenderBlockStart("TicketOptions") %]
                             <label>[% Translate("Options") | html %]:</label>
                             <div class="Field">
@@ -352,35 +313,6 @@
 [% RenderBlockEnd("TicketOptions") %]
 
 <!-- OutputFilterHook_NoTicketOptionsFallback -->
-
-[% RenderBlockStart("StandardTemplate") %]
-                            <label for="StandardTemplateID">[% Translate("Text Template") | html %]:</label>
-                            <div class="Field">
-                                [% Data.StandardTemplateStrg %]
-                                <p class="FieldExplanation">[% Translate("Setting a template will overwrite any text or attachment.") | html %]</p>
-                            </div>
-                            <div class="Clear"></div>
-[% RenderBlockEnd("StandardTemplate") %]
-
-[% RenderBlockStart("RichTextLabel") %]
-                            <label for="RichText">[% Translate("Text") | html %]:</label>
-[% RenderBlockEnd("RichTextLabel") %]
-[% RenderBlockStart("RichTextLabelMandatory") %]
-                            <label class="Mandatory" for="RichText"><span class="Marker">*</span>[% Translate("Text") | html %]:</label>
-[% RenderBlockEnd("RichTextLabelMandatory") %]
-
-                            <div id="RichTextField" class="RichTextField">
-                                <textarea id="RichText" class="RichText Validate [% Data.BodyInvalid %] [% Data.BodyRequired %]" name="Body" rows="15" cols="[% Config("Ticket::Frontend::TextAreaNote") %]">[% Data.Body | html %]</textarea>
-                                <div id="RichTextError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
-                                <div id="RichTextServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
-                            </div>
-                            <div class="Clear"></div>
-
-                            <label>[% Translate("Attachments") | html %]:</label>
-                            <div class="Field">
-[% INCLUDE "FormElements/AttachmentList.tt" %]
-                            </div>
-                            <div class="Clear"></div>
 
                             <label for="IsVisibleForCustomer">[% Translate("Is visible for customer") | html %]:</label>
                             <div class="Field">
@@ -417,7 +349,6 @@
                 <button class="CallForAction Primary" id="submitRichText" accesskey="g" title="[% Translate("Submit") | html %] (g)" type="submit" value="[% Translate("Submit") | html %]">
                     <span><i class="fa fa-check-square-o"></i> [% Translate("Submit") | html %]</span>
                 </button>
-                [% INCLUDE "FormElements/DraftButtons.tt" %]
             </div>
         </div>
     </form>
