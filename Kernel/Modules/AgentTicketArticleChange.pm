@@ -2341,8 +2341,17 @@ sub _Mask {
             );
         }
 
+        # show IsVisibleForCustomer
+        if ( $Config->{IsVisibleForCustomer} ) {
+
+            $LayoutObject->Block(
+                Name => 'IsVisibleForCustomer',
+                Data => \%Param,
+            );
+        }
+
         # show time accounting box
-        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
+        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
             if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
                 $LayoutObject->Block(
                     Name => 'TimeUnitsLabelMandatory',
