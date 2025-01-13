@@ -8,6 +8,7 @@
     <License>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</License>
     <Description Lang="en">..</Description>
     <Filelist>
+        <File Permission="660" Location="Kernel/Autoload/ArticleAccountedTimeOverwrite.pm" />
         <File Permission="660" Location="Kernel/Config/Files/XML/AgentTicketArticleChange.xml" />
         <File Permission="660" Location="Kernel/Modules/AgentTicketArticleChange.pm" />
         <File Permission="660" Location="Kernel/Output/HTML/ArticleAction/AgentTicketArticleChange.pm" />

@@ -890,11 +890,11 @@ sub Run {
         }
 
         # time accounting
-        if ( $Config->{TimeUnitsOverwrite} && $GetParam{TimeUnits} ) {
-            $TicketObject->TicketAccountTime(
+        if ( $Config->{TimeUnitsOverwrite} && defined $GetParam{TimeUnits} ) {
+            my $Success = $ArticleObject->ArticleAccountedTimeOverwrite(
                 TicketID  => $Self->{TicketID},
                 ArticleID => $Self->{ArticleID},
-                TimeUnit  => $GetParam{TimeUnits},
+                TimeUnits => $GetParam{TimeUnits},
                 UserID    => $Self->{UserID},
             );
         }
