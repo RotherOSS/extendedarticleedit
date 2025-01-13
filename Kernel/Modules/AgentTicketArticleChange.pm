@@ -888,17 +888,22 @@ sub Run {
         if ( $Self->{ArticleID} ) {
 
             # Note: Keys C<Body>, C<Subject>, C<From>, C<To>, C<Cc>, C<Bcc>, C<ReplyTo>, C<SenderType>, C<SenderTypeID> and C<IsVisibleForCustomer> are implemented.
-            my $Success = $ArticleBackendObject->ArticleUpdate(
-                TicketID  => $Self->{TicketID},
-                ArticleID => $Self->{ArticleID},
-                Key       => 'IsVisibleForCustomer',
-                Value     => $GetParam{IsVisibleForCustomer},
-                UserID    => $Self->{UserID},
-            );
-            if ( !$Success ) {
+            my $IsVisibleForCustomer = $Config->{IsVisibleForCustomerDefault};
+            if ( $Config->{IsVisibleForCustomer} ) {
+                $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
 
-                # TODO implement error message
-                $LayoutObject->ErrorScreen();
+                my $Success = $ArticleBackendObject->ArticleUpdate(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $Self->{ArticleID},
+                    Key       => 'IsVisibleForCustomer',
+                    Value     => $IsVisibleForCustomer,
+                    UserID    => $Self->{UserID},
+                );
+                if ( !$Success ) {
+
+                    # TODO implement error message
+                    $LayoutObject->ErrorScreen();
+                }
             }
         }
 
