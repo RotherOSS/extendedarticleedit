@@ -114,7 +114,7 @@ sub GetConfig {
         Name        => Translatable('Change'),
         Class       => 'AsPopup PopupType_TicketAction',
         Link        =>
-            "Action=AgentTicketArticleChange;TicketID=$Param{Ticket}->{TicketID};ArticleID=$Param{Article}->{ArticleID}",
+            "Action=AgentTicketArticleChange;TicketID=$Param{Ticket}{TicketID};ArticleID=$Param{Article}{ArticleID}",
     );
 
     return ( \%MenuItem );
