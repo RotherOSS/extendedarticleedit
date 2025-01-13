@@ -888,35 +888,16 @@ sub Run {
 
         if ( $Config->{Note} ) {
 
-            my $From = "\"$Self->{UserFullname}\" <$Self->{UserEmail}>";
-            my @NotifyUserIDs;
-
-            # get inform user list
-            my @InformUserID = $ParamObject->GetArray( Param => 'InformUserID' );
-
-            # get involved user list
-            my @InvolvedUserID = $ParamObject->GetArray( Param => 'InvolvedUserID' );
-
-            if ( $Config->{InformAgent} ) {
-                push @NotifyUserIDs, @InformUserID;
-            }
-
-            if ( $Config->{InvolvedAgent} ) {
-                push @NotifyUserIDs, @InvolvedUserID;
-            }
-
             # TODO  change to articleupdate
             if ( $Self->{ArticleID} ) {
                 $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleEdit(
                     TicketID                        => $Self->{TicketID},
                     ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
                     SenderType                      => 'agent',
-                    From                            => $From,
                     Charset                         => $LayoutObject->{UserCharset},
                     UserID                          => $Self->{UserID},
                     HistoryType                     => $Config->{HistoryType},
                     HistoryComment                  => $Config->{HistoryComment},
-                    ForceNotificationToUserID       => \@NotifyUserIDs,
                     ExcludeMuteNotificationToUserID => \@NotifyDone,
                     UnlockOnAway                    => $UnlockOnAway,
                     UserLogin                       => $Self->{UserLogin},
@@ -2209,7 +2190,7 @@ sub _Mask {
     # End Widget Ticket Actions
 
     # Widget Article
-    if ( $Config->{Note} && ( $Config->{IsVisibleForCustomer} || $Config->{InvolvedAgents} || $Config->{InformAgent} ) ) {
+    if ( $Config->{Note} && $Config->{IsVisibleForCustomer} ) {
 
         $Param{WidgetStatus} = 'Collapsed';
 
@@ -2261,101 +2242,6 @@ sub _Mask {
         );
         for my $UserID ( sort keys %MemberList ) {
             $ShownUsers{$UserID} = $AllGroupsMembers{$UserID};
-        }
-
-        if ( $Config->{InformAgent} || $Config->{InvolvedAgent} ) {
-            $LayoutObject->Block(
-                Name => 'InformAdditionalAgents',
-            );
-        }
-
-        # get param object
-        my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-
-        # get all agents for "involved agents"
-        if ( $Config->{InvolvedAgent} ) {
-
-            my @UserIDs = $TicketObject->TicketInvolvedAgentsList(
-                TicketID => $Self->{TicketID},
-            );
-
-            my @InvolvedAgents;
-            my $Counter = 1;
-
-            my @InvolvedUserID = $ParamObject->GetArray( Param => 'InvolvedUserID' );
-
-            my %AgentWithPermission = $GroupObject->PermissionGroupGet(
-                GroupID => $GID,
-                Type    => 'ro',
-            );
-
-            USER:
-            for my $User ( reverse @UserIDs ) {
-
-                next USER if !defined $AgentWithPermission{ $User->{UserID} };
-
-                my $Value = "$Counter: $User->{UserFullname}";
-                if ( $User->{OutOfOfficeMessage} ) {
-                    $Value .= " $User->{OutOfOfficeMessage}";
-                }
-
-                push @InvolvedAgents, {
-                    Key   => $User->{UserID},
-                    Value => $Value,
-                };
-                $Counter++;
-            }
-
-            my $InvolvedAgentSize = $ConfigObject->Get('Ticket::Frontend::InvolvedAgentMaxSize') || 3;
-            $Param{InvolvedAgentStrg} = $LayoutObject->BuildSelection(
-                Data       => \@InvolvedAgents,
-                SelectedID => \@InvolvedUserID,
-                Name       => 'InvolvedUserID',
-                Class      => 'Modernize',
-                Multiple   => 1,
-                Size       => $InvolvedAgentSize,
-            );
-
-            # block is called below "inform agents"
-        }
-
-        # agent list
-        if ( $Config->{InformAgent} ) {
-
-            # get inform user list
-            my %InformAgents;
-            my @InformUserID    = $ParamObject->GetArray( Param => 'InformUserID' );
-            my %InformAgentList = $GroupObject->PermissionGroupGet(
-                GroupID => $GID,
-                Type    => 'ro',
-            );
-            for my $UserID ( sort keys %InformAgentList ) {
-                $InformAgents{$UserID} = $AllGroupsMembers{$UserID};
-            }
-
-            my $InformAgentSize = $ConfigObject->Get('Ticket::Frontend::InformAgentMaxSize')
-                || 3;
-            $Param{OptionStrg} = $LayoutObject->BuildSelection(
-                Data       => \%InformAgents,
-                SelectedID => \@InformUserID,
-                Name       => 'InformUserID',
-                Class      => 'Modernize',
-                Multiple   => 1,
-                Size       => $InformAgentSize,
-            );
-            $LayoutObject->Block(
-                Name => 'InformAgent',
-                Data => \%Param,
-            );
-        }
-
-        # get involved
-        if ( $Config->{InvolvedAgent} ) {
-
-            $LayoutObject->Block(
-                Name => 'InvolvedAgent',
-                Data => \%Param,
-            );
         }
 
         # show IsVisibleForCustomer

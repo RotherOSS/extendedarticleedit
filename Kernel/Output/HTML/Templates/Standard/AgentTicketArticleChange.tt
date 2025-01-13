@@ -252,30 +252,6 @@
                     </div>
                     <div class="Content">
 
-[% RenderBlockStart("InformAdditionalAgents") %]
-                        <fieldset class="TableLike FixedLabel">
-[% RenderBlockStart("InformAgent") %]
-                            <label for="InformUserID">[% Translate("Inform agents") | html %]:</label>
-                            <div class="Field">
-                            [% Data.OptionStrg %]
-                            </div>
-                            <div class="Clear"></div>
-[% RenderBlockEnd("InformAgent") %]
-[% RenderBlockStart("InvolvedAgent") %]
-                            <label for="InvolvedUserID">[% Translate("Inform involved agents") | html %]:</label>
-                            <div class="Field">
-                            [% Data.InvolvedAgentStrg %]
-                            </div>
-                            <div class="Clear"></div>
-[% RenderBlockEnd("InvolvedAgent") %]
-                            <div class="Field">
-                                <p class="FieldExplanation">
-                                    [% Translate("Here you can select additional agents which should receive a notification regarding the new article.") | html %]
-                                </p>
-                            </div>
-                        </fieldset>
-[% RenderBlockEnd("InformAdditionalAgents") %]
-
                         <fieldset class="TableLike FixedLabel">
 [% RenderBlockStart("TicketOptions") %]
                             <label>[% Translate("Options") | html %]:</label>
