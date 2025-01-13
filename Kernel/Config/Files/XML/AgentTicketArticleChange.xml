@@ -240,58 +240,27 @@
             </Hash>
         </Value>
     </Setting>
-
-    <!-- TODO change to article -->
-    <Setting Name="Events###Ticket" Required="1" Valid="1">
-        <Description Translatable="1">List of all ticket events to be displayed in the GUI.</Description>
+    <Setting Name="Events###Article" Required="1" Valid="1">
+        <Description Translatable="1">List of all article events to be displayed in the GUI.</Description>
         <Navigation>Frontend::Admin</Navigation>
         <Value>
             <Array>
-                <Item>TicketCreate</Item>
-                <Item>TicketDelete</Item>
-                <Item>TicketTitleUpdate</Item>
-                <Item>TicketUnlockTimeoutUpdate</Item>
-                <Item>TicketQueueUpdate</Item>
-                <Item>TicketTypeUpdate</Item>
-                <Item>TicketServiceUpdate</Item>
-                <Item>TicketSLAUpdate</Item>
-                <Item>TicketCustomerUpdate</Item>
-                <Item>TicketPendingTimeUpdate</Item>
-                <Item>TicketLockUpdate</Item>
-                <Item>TicketArchiveFlagUpdate</Item>
-                <Item>TicketStateUpdate</Item>
-                <Item>TicketOwnerUpdate</Item>
-                <Item>TicketResponsibleUpdate</Item>
-                <Item>TicketPriorityUpdate</Item>
-                <Item>HistoryAdd</Item>
-                <Item>HistoryDelete</Item>
-                <Item>TicketAccountTime</Item>
-                <Item>TicketMerge</Item>
-                <Item>TicketSubscribe</Item>
-                <Item>TicketUnsubscribe</Item>
-                <Item>TicketFlagSet</Item>
-                <Item>TicketFlagDelete</Item>
-                <Item>EscalationResponseTimeNotifyBefore</Item>
-                <Item>EscalationUpdateTimeNotifyBefore</Item>
-                <Item>EscalationSolutionTimeNotifyBefore</Item>
-                <Item>EscalationResponseTimeStart</Item>
-                <Item>EscalationUpdateTimeStart</Item>
-                <Item>EscalationSolutionTimeStart</Item>
-                <Item>EscalationResponseTimeStop</Item>
-                <Item>EscalationUpdateTimeStop</Item>
-                <Item>EscalationSolutionTimeStop</Item>
-                <Item>NotificationNewTicket</Item>
-                <Item>NotificationFollowUp</Item>
-                <Item>NotificationLockTimeout</Item>
-                <Item>NotificationOwnerUpdate</Item>
-                <Item>NotificationResponsibleUpdate</Item>
-                <Item>NotificationAddNote</Item>
-                <Item>NotificationMove</Item>
-                <Item>NotificationPendingReminder</Item>
-                <Item>NotificationEscalation</Item>
-                <Item>NotificationEscalationNotifyBefore</Item>
-                <Item>NotificationServiceUpdate</Item>
-                <Item>ArticleEdit</Item>
+                <Item>ArticleCreate</Item>
+                <Item>ArticleUpdate</Item>
+                <Item>ArticleSend</Item>
+                <Item>ArticleBounce</Item>
+                <Item>ArticleAgentNotification</Item>
+                <Item>ArticleCustomerNotification</Item>
+                <Item>ArticleAutoResponse</Item>
+                <Item>ArticleFlagSet</Item>
+                <Item>ArticleFlagDelete</Item>
+                <Item>ArticleAgentNotification</Item>
+                <Item>ArticleCustomerNotification</Item>
+                <Item>ArticleEmailSendingQueued</Item>
+                <Item>ArticleEmailSendingSent</Item>
+                <Item>ArticleEmailSendingError</Item>
+                <Item>ArticleTransmissionErrorCreate</Item>
+                <Item>ArticleTransmissionErrorUpdate</Item>
                 <Item>ArticleChange</Item>
             </Array>
         </Value>
