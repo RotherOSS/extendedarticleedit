@@ -267,8 +267,9 @@ sub Run {
     $LayoutObject->Block(
         Name => 'Properties',
         Data => {
-            FormID    => $Self->{FormID},
-            ArticleID => $Self->{ArticleID} || '',
+            FormID       => $Self->{FormID},
+            ArticleID    => $Self->{ArticleID} || '',
+            ArticleTitle => $ArticleData{Subject},
             %Ticket,
             %Param,
         },
