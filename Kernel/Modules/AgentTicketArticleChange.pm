@@ -830,7 +830,6 @@ sub Run {
         }
 
         # add note
-        my $ArticleID = '';
         my $ReturnURL;
 
         # set priority
@@ -886,49 +885,41 @@ sub Run {
             }
         }
 
-        if ( $Config->{Note} ) {
+        if ( $Self->{ArticleID} ) {
 
-            # TODO  change to articleupdate
-            if ( $Self->{ArticleID} ) {
-                $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleEdit(
-                    TicketID                        => $Self->{TicketID},
-                    ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
-                    SenderType                      => 'agent',
-                    Charset                         => $LayoutObject->{UserCharset},
-                    UserID                          => $Self->{UserID},
-                    HistoryType                     => $Config->{HistoryType},
-                    HistoryComment                  => $Config->{HistoryComment},
-                    ExcludeMuteNotificationToUserID => \@NotifyDone,
-                    UnlockOnAway                    => $UnlockOnAway,
-                    UserLogin                       => $Self->{UserLogin},
-                    %GetParam,
-                );
-            }
-
-            if ( !$ArticleID ) {
-                return $LayoutObject->ErrorScreen();
-            }
-
-            # time accounting
-            if ( $GetParam{TimeUnits} ) {
-                $TicketObject->TicketAccountTime(
-                    TicketID  => $Self->{TicketID},
-                    ArticleID => $ArticleID,
-                    TimeUnit  => $GetParam{TimeUnits},
-                    UserID    => $Self->{UserID},
-                );
-            }
-
-            # remove all form data
-            $Kernel::OM->Get('Kernel::System::Web::FormCache')->FormIDRemove( FormID => $Self->{FormID} );
-
-            # delete hidden fields cache
-            $Kernel::OM->Get('Kernel::System::Cache')->Delete(
-                Type => 'HiddenFields',
-                Key  => $Self->{FormID},
+            # Note: Keys C<Body>, C<Subject>, C<From>, C<To>, C<Cc>, C<Bcc>, C<ReplyTo>, C<SenderType>, C<SenderTypeID> and C<IsVisibleForCustomer> are implemented.
+            my $Success = $ArticleBackendObject->ArticleUpdate(
+                TicketID  => $Self->{TicketID},
+                ArticleID => $Self->{ArticleID},
+                Key       => 'IsVisibleForCustomer',
+                Value     => $GetParam{IsVisibleForCustomer},
+                UserID    => $Self->{UserID},
             );
+            if ( !$Success ) {
 
+                # TODO implement error message
+                $LayoutObject->ErrorScreen();
+            }
         }
+
+        # time accounting
+        if ( $GetParam{TimeUnits} ) {
+            $TicketObject->TicketAccountTime(
+                TicketID  => $Self->{TicketID},
+                ArticleID => $Self->{ArticleID},
+                TimeUnit  => $GetParam{TimeUnits},
+                UserID    => $Self->{UserID},
+            );
+        }
+
+        # remove all form data
+        $Kernel::OM->Get('Kernel::System::Web::FormCache')->FormIDRemove( FormID => $Self->{FormID} );
+
+        # delete hidden fields cache
+        $Kernel::OM->Get('Kernel::System::Cache')->Delete(
+            Type => 'HiddenFields',
+            Key  => $Self->{FormID},
+        );
 
         # set dynamic fields
         # cycle through the activated Dynamic Fields for this screen
@@ -940,7 +931,7 @@ sub Run {
 
             # set the object ID (TicketID or ArticleID) depending on the field configration
             my $ObjectID = $DynamicFieldConfig->{ObjectType} eq 'Article'
-                ? $Self->{ArticleID} || $ArticleID
+                ? $Self->{ArticleID}
                 : $Self->{TicketID};
 
             # set the value which was taken from web request
@@ -954,7 +945,7 @@ sub Run {
         }
 
         # load new URL in parent window and close popup
-        $ReturnURL ||= "Action=AgentTicketZoom;TicketID=$Self->{TicketID};ArticleID=$ArticleID";
+        $ReturnURL ||= "Action=AgentTicketZoom;TicketID=$Self->{TicketID};ArticleID=$Self->{ArticleID}";
 
         return $LayoutObject->PopupClose(
             URL => $ReturnURL,
@@ -2190,13 +2181,9 @@ sub _Mask {
     # End Widget Ticket Actions
 
     # Widget Article
-    if ( $Config->{Note} && $Config->{IsVisibleForCustomer} ) {
+    if ( $Config->{IsVisibleForCustomer} ) {
 
-        $Param{WidgetStatus} = 'Collapsed';
-
-        if ( $Config->{Note} ) {
-            $Param{WidgetStatus} = 'Expanded';
-        }
+        $Param{WidgetStatus} = 'Expanded';
 
         if ( !defined $Param{IsVisibleForCustomer} ) {
             $Param{IsVisibleForCustomer} = $Config->{IsVisibleForCustomerDefault};
