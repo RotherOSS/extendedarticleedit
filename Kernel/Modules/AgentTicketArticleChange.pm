@@ -435,8 +435,6 @@ sub Run {
             $LayoutObject->ChallengeTokenCheck();
         }
 
-        $GetParam{IsVisibleForCustomer} //= 0;
-
         # get state object
         my $StateObject = $Kernel::OM->Get('Kernel::System::State');
 
@@ -562,7 +560,8 @@ sub Run {
         # check time units, but only if the current screen has a note
         #   (accounted time can only be stored if and article is generated)
         if (
-            $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
+            $Config->{TimeUnitsOverwrite}
+            && $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
             && $GetParam{TimeUnits} eq ''
             )
         {
@@ -891,7 +890,7 @@ sub Run {
         }
 
         # time accounting
-        if ( $GetParam{TimeUnits} ) {
+        if ( $Config->{TimeUnitsOverwrite} && $GetParam{TimeUnits} ) {
             $TicketObject->TicketAccountTime(
                 TicketID  => $Self->{TicketID},
                 ArticleID => $Self->{ArticleID},
@@ -2169,7 +2168,7 @@ sub _Mask {
     # End Widget Ticket Actions
 
     # Widget Article
-    if ( $Config->{IsVisibleForCustomer} ) {
+    if ( $Config->{IsVisibleForCustomer} || $Config->{TimeUnitsOverwrite} ) {
 
         $Param{WidgetStatus} = 'Expanded';
 
@@ -2229,7 +2228,7 @@ sub _Mask {
         }
 
         # show time accounting box
-        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
+        if ( $Config->{TimeUnitsOverwrite} && $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
             if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
                 $LayoutObject->Block(
                     Name => 'TimeUnitsLabelMandatory',
@@ -2243,10 +2242,6 @@ sub _Mask {
                     Name => 'TimeUnitsLabel',
                     Data => \%Param,
                 );
-
-                $Param{TimeUnitsRequired} = $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
-                    ? 'Validate_Required'
-                    : '';
             }
             $LayoutObject->Block(
                 Name => 'TimeUnits',

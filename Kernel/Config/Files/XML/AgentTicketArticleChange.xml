@@ -138,7 +138,7 @@
     </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###IsVisibleForCustomer" Required="1" Valid="1">
         <Description Translatable="1">Sets the default article customer visibility in the article change screen of the agent interface.</Description>
-        <Navigation>Frontend::Agent::View::TicketPhoneNew</Navigation>
+        <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
         <Value>
             <Item ValueType="Checkbox">1</Item>
         </Value>
@@ -148,6 +148,13 @@
         <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
         <Value>
             <Item ValueType="Checkbox">0</Item>
+        </Value>
+    </Setting>
+    <Setting Name="Ticket::Frontend::AgentTicketArticleChange###TimeUnitsOverwrite" Required="1" Valid="1">
+        <Description Translatable="1">Sets the time units in the article change screen of the agent interface. Note that time units are not added, but get overwritten via this screen.</Description>
+        <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
+        <Value>
+            <Item ValueType="Checkbox">1</Item>
         </Value>
     </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###Priority" UserPreferencesGroup="Advanced" UserModificationPossible="1" Required="1" Valid="1">
