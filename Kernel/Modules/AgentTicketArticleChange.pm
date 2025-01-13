@@ -280,7 +280,7 @@ sub Run {
         Name => 'Header' . $Self->{Action},
         Data => {
             %Ticket,
-            ArticleTitle => $GetParam{Subject},
+            ArticleTitle => $ArticleData{Subject},
         },
     );
 
@@ -370,10 +370,6 @@ sub Run {
         )
         )
     {
-
-        # TODO find out what this is about
-        next PARAMETER if $Self->{ArticleID} && !$Self->{Subaction} && ( $Key eq 'Body' || $Key eq 'Subject' );
-
         $GetParam{$Key} = $ParamObject->GetParam( Param => $Key );
     }
 
@@ -775,10 +771,7 @@ sub Run {
                 UserID             => $Self->{UserID},
                 TicketID           => $Self->{TicketID},
                 SendNoNotification => $GetParam{NewUserID},
-
-                # TODO check if this is mandatory
-                # Comment            => $BodyAsText,
-                Action => $Self->{Action},
+                Action             => $Self->{Action},
             );
             if ( !$Move ) {
                 return $LayoutObject->ErrorScreen();
@@ -798,9 +791,6 @@ sub Run {
                     TicketID  => $Self->{TicketID},
                     UserID    => $Self->{UserID},
                     NewUserID => $GetParam{NewOwnerID},
-
-                    # TODO check if this is mandatory
-                    # Comment   => $BodyText,
                 );
                 $UnlockOnAway = 0;
 
@@ -818,9 +808,6 @@ sub Run {
                     TicketID  => $Self->{TicketID},
                     UserID    => $Self->{UserID},
                     NewUserID => $GetParam{NewResponsibleID},
-
-                    # TODO check if this is mandatory
-                    # Comment   => $BodyText,
                 );
 
                 # remember to not notify responsible twice
@@ -893,18 +880,13 @@ sub Run {
             if ( $Config->{IsVisibleForCustomer} ) {
                 $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
 
-                my $Success = $ArticleBackendObject->ArticleUpdate(
+                $ArticleBackendObject->ArticleUpdate(
                     TicketID  => $Self->{TicketID},
                     ArticleID => $Self->{ArticleID},
                     Key       => 'IsVisibleForCustomer',
                     Value     => $IsVisibleForCustomer,
                     UserID    => $Self->{UserID},
                 );
-                if ( !$Success ) {
-
-                    # TODO implement error message
-                    $LayoutObject->ErrorScreen();
-                }
             }
         }
 
@@ -2263,9 +2245,7 @@ sub _Mask {
                 );
 
                 $Param{TimeUnitsRequired} = $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
-
-                    # TODO check what this does and if it works
-                    ? 'Validate_DependingRequiredAND'
+                    ? 'Validate_Required'
                     : '';
             }
             $LayoutObject->Block(
