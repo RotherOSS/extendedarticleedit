@@ -19,15 +19,6 @@
             </Hash>
         </Value>
     </Setting>
-    <Setting Name="Ticket::Frontend::HistoryTypes###001-AgentTicketArticleChange" Required="1" Valid="1">
-        <Description Translatable="1">Controls how to display the ticket history entries as readable values.</Description>
-        <Navigation>Frontend::Agent::View::TicketHistory</Navigation>
-        <Value>
-            <Hash>
-                <Item Key="ArticleChange" Translatable="1">Article ID: %s was changed by "%s" (%s)</Item>
-            </Hash>
-        </Value>
-    </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###Permission" Required="1" Valid="1">
         <Description Translatable="1">Required permissions to use the article change screen in the agent interface.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
@@ -191,7 +182,7 @@
         <Description Translatable="1">Defines the history type for the article change screen action, which gets used for ticket history in the agent interface.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleChange</Navigation>
         <Value>
-            <Item ValueType="String" ValueRegex="">ArticleChange</Item>
+            <Item ValueType="String" ValueRegex="">Misc</Item>
         </Value>
     </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleChange###HistoryComment" Required="0" Valid="1">

@@ -891,13 +891,24 @@ sub Run {
 
         # time accounting
         if ( $Config->{TimeUnitsOverwrite} && defined $GetParam{TimeUnits} ) {
-            my $Success = $ArticleObject->ArticleAccountedTimeOverwrite(
+            $ArticleObject->ArticleAccountedTimeOverwrite(
                 TicketID  => $Self->{TicketID},
                 ArticleID => $Self->{ArticleID},
                 TimeUnits => $GetParam{TimeUnits},
                 UserID    => $Self->{UserID},
             );
         }
+
+        # add history row
+        my $UserLogin = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+            UserID => $Self->{UserID},
+        );
+        $TicketObject->HistoryAdd(
+            TicketID     => $Self->{TicketID},
+            HistoryType  => 'Misc',
+            Name         => "Article $Self->{ArticleID} was changed by user $UserLogin.",
+            CreateUserID => $Self->{UserID},
+        );
 
         # remove all form data
         $Kernel::OM->Get('Kernel::System::Web::FormCache')->FormIDRemove( FormID => $Self->{FormID} );
