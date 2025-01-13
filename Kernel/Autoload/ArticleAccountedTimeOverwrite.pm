@@ -31,6 +31,7 @@ use utf8;
 our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::Log',
+    'Kernel::System::Ticket',
 );
 
 sub ArticleAccountedTimeOverwrite {
@@ -97,6 +98,16 @@ sub ArticleAccountedTimeOverwrite {
         Bind => [
             \$Param{TicketID}, \$Param{ArticleID}, \$Param{UserID}, \$Param{UserID},
         ],
+    );
+
+    # add history
+    my $AccountedTime = $Kernel::OM->Get('Kernel::System::Ticket')->TicketAccountedTimeGet( TicketID => $Param{TicketID} );
+    $Kernel::OM->Get('Kernel::System::Ticket')->HistoryAdd(
+        TicketID     => $Param{TicketID},
+        ArticleID    => $Param{ArticleID},
+        CreateUserID => $Param{UserID},
+        HistoryType  => 'TimeAccounting',
+        Name         => "\%\%$Param{TimeUnits}\%\%$AccountedTime",
     );
 
     return 1;
