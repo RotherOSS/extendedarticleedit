@@ -52,6 +52,7 @@ sub Data {
     $Self->{Translation}->{'Defines the history type for the article change screen action, which gets used for ticket history in the agent interface.'} = 'Definiert den Historien-Typ für die Aktion "Artikel ändern" welcher für die Ticket-Historie in der Agenten-Oberfläche benutzt wird.';
     $Self->{Translation}->{'Defines the history comment for the article change screen action, which gets used for ticket history in the agent interface.'} = 'Definiert den Historien-Kommentar für die Aktion "Artikel ändern" welcher in der Ticket-Historie in der Agenten-Oberfläche angezeigt wird.';
     $Self->{Translation}->{'Dynamic fields shown in the article change screen of the agent interface.'} = 'Dynamische Felder zur Eingabe im Artikel ändern-Bildschirm des Agentenbereichs.';
+    $Self->{Translation}->{'This configuration adds the article change screen to the screens for which it is possible to enable or disable dynamic fields.'} = 'Diese Konfiguration fügt den Artikel-Ändern-Bildschirm zu den Oberflächen hinzu, auf denen dynamische Felder aktiviert oder deaktiviert werden.';
 
     push @{ $Self->{JavaScriptStrings} // [] }, (
     );
