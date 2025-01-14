@@ -6,7 +6,7 @@
     <Vendor>Rother OSS GmbH</Vendor>
     <URL>https://otobo.io/</URL>
     <License>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</License>
-    <Description Lang="en">..</Description>
+    <Description Lang="en">The package AgentTicketArticleChange adds the possibility to change ticket and article attributes.</Description>
     <Filelist>
         <File Permission="660" Location="Kernel/Autoload/ArticleAccountedTimeOverwrite.pm" />
         <File Permission="660" Location="Kernel/Config/Files/XML/AgentTicketArticleChange.xml" />
