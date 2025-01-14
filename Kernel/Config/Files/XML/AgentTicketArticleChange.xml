@@ -247,31 +247,6 @@
             </Hash>
         </Value>
     </Setting>
-    <Setting Name="Events###Article" Required="1" Valid="1">
-        <Description Translatable="1">List of all article events to be displayed in the GUI.</Description>
-        <Navigation>Frontend::Admin</Navigation>
-        <Value>
-            <Array>
-                <Item>ArticleCreate</Item>
-                <Item>ArticleUpdate</Item>
-                <Item>ArticleSend</Item>
-                <Item>ArticleBounce</Item>
-                <Item>ArticleAgentNotification</Item>
-                <Item>ArticleCustomerNotification</Item>
-                <Item>ArticleAutoResponse</Item>
-                <Item>ArticleFlagSet</Item>
-                <Item>ArticleFlagDelete</Item>
-                <Item>ArticleAgentNotification</Item>
-                <Item>ArticleCustomerNotification</Item>
-                <Item>ArticleEmailSendingQueued</Item>
-                <Item>ArticleEmailSendingSent</Item>
-                <Item>ArticleEmailSendingError</Item>
-                <Item>ArticleTransmissionErrorCreate</Item>
-                <Item>ArticleTransmissionErrorUpdate</Item>
-                <Item>ArticleChange</Item>
-            </Array>
-        </Value>
-    </Setting>
     <Setting Name="ACLKeysLevel3::Actions###200-AgentTicketArticleChange" Required="0" Valid="1">
         <Description Translatable="1">Defines which items are available for 'Action' in third level of the ACL structure.</Description>
         <Navigation>Core::Ticket::ACL</Navigation>
