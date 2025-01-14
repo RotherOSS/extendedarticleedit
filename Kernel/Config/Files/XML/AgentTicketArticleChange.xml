@@ -405,7 +405,7 @@
                 <Item Key="AgentTicketArticleChange">
                     <Hash>
                         <Item Key="Module">Kernel::Output::HTML::ArticleAction::AgentTicketArticleChange</Item>
-                        <Item Key="Prio">1050</Item>
+                        <Item Key="Prio">50</Item>
                         <Item Key="Valid">1</Item>
                     </Hash>
                 </Item>
@@ -497,7 +497,7 @@
                 <Item Key="AgentTicketArticleChange">
                     <Hash>
                         <Item Key="Module">Kernel::Output::HTML::ArticleAction::AgentTicketArticleChange</Item>
-                        <Item Key="Prio">1050</Item>
+                        <Item Key="Prio">50</Item>
                         <Item Key="Valid">1</Item>
                     </Hash>
                 </Item>
@@ -617,7 +617,7 @@
                 <Item Key="AgentTicketArticleChange">
                     <Hash>
                         <Item Key="Module">Kernel::Output::HTML::ArticleAction::AgentTicketArticleChange</Item>
-                        <Item Key="Prio">1050</Item>
+                        <Item Key="Prio">50</Item>
                         <Item Key="Valid">1</Item>
                     </Hash>
                 </Item>
@@ -667,7 +667,7 @@
                 <Item Key="AgentTicketArticleChange">
                     <Hash>
                         <Item Key="Module">Kernel::Output::HTML::ArticleAction::AgentTicketArticleChange</Item>
-                        <Item Key="Prio">1050</Item>
+                        <Item Key="Prio">50</Item>
                         <Item Key="Valid">1</Item>
                     </Hash>
                 </Item>
