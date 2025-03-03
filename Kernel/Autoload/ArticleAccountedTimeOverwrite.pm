@@ -14,9 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-# This file demonstrates how to use the autoload mechanism of OTOBO to change existing functionality.
-# Please note that all autoload files have to be registered via SysConfig (see AutoloadPerlPackages###1000-Test).
-
 ## no critic (Modules::RequireExplicitPackage)
 
 use Kernel::System::Ticket::Article ();    ## no perlimports
