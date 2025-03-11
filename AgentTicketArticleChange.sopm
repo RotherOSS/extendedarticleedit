@@ -11,7 +11,6 @@
         <File Permission="660" Location="Custom/Kernel/Modules/AgentTicketArticleEdit.pm" />
         <File Permission="660" Location="Custom/Kernel/Output/HTML/ArticleAction/AgentTicketArticleEdit.pm" />
         <File Permission="660" Location="Custom/Kernel/Output/HTML/Templates/Standard/AgentTicketArticleEdit.tt" />
-        <File Permission="660" Location="Kernel/Autoload/ArticleAccountedTimeOverwrite.pm" />
         <File Permission="660" Location="Kernel/Config/Files/XML/AgentTicketArticleChange.xml" />
         <File Permission="660" Location="Kernel/Language/de_AgentTicketArticleChange.pm" />
     </Filelist>
