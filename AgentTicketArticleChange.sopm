@@ -11,8 +11,5 @@
         <File Permission="660" Location="Kernel/Autoload/ArticleAccountedTimeOverwrite.pm" />
         <File Permission="660" Location="Kernel/Config/Files/XML/AgentTicketArticleChange.xml" />
         <File Permission="660" Location="Kernel/Language/de_AgentTicketArticleChange.pm" />
-        <File Permission="660" Location="Kernel/Modules/AgentTicketArticleChange.pm" />
-        <File Permission="660" Location="Kernel/Output/HTML/ArticleAction/AgentTicketArticleChange.pm" />
-        <File Permission="660" Location="Kernel/Output/HTML/Templates/Standard/AgentTicketArticleChange.tt" />
     </Filelist>
 </otobo_package>
