@@ -57,8 +57,14 @@ sub CheckAccess {
 
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
-    return if $Param{ChannelName} ne 'Internal';
-    return if $Param{Article}->{IsVisibleForCustomer};
+# Rother OSS / AgentTicketArticleChange
+#     return if $Param{ChannelName} ne 'Internal';
+#     return if $Param{Article}->{IsVisibleForCustomer};
+    my $ChannelConfig = $ConfigObject->Get('Ticket::Frontend::Article::Actions')->{$Param{ChannelName}};
+    return unless IsHashRefWithData($ChannelConfig);
+    return unless IsHashRefWithData($ChannelConfig->{AgentTicketArticleEdit});
+    return unless $ChannelConfig->{AgentTicketArticleEdit}{Valid};
+# EO AgentTicketArticleChange
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
     # check if module is registered
