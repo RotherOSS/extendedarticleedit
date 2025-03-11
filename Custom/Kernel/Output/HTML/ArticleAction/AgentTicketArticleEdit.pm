@@ -63,7 +63,6 @@ sub CheckAccess {
     my $ChannelConfig = $ConfigObject->Get('Ticket::Frontend::Article::Actions')->{$Param{ChannelName}};
     return unless IsHashRefWithData($ChannelConfig);
     return unless IsHashRefWithData($ChannelConfig->{AgentTicketArticleEdit});
-    return unless $ChannelConfig->{AgentTicketArticleEdit}{Valid};
 # EO AgentTicketArticleChange
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
