@@ -4,7 +4,7 @@
         <Description Translatable="1">Sets the time units in the article change screen of the agent interface. Note that time units are not added, but get overwritten via this screen.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleEdit</Navigation>
         <Value>
-            <Item ValueType="Select" SelectedID="None">
+            <Item ValueType="Select" SelectedID="Internal">
                 <Item ValueType="Option" Value="Phone" Translatable="1">Phone</Item>
                 <Item ValueType="Option" Value="Internal" Translatable="1">Internal</Item>
                 <Item ValueType="Option" Value="Both" Translatable="1">Both</Item>
