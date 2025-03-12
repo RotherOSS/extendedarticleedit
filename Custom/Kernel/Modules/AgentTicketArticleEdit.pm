@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
 # Copyright (C) 2019-2025 Rother OSS GmbH, https://otobo.io/
 # --
-# $origin: otobo - 50644e590081edd0b65fc8117adb4221488b9467 - Kernel/Modules/AgentTicketArticleEdit.pm
+# $origin: otobo - c682ffc66dfaf823fcdf7d6f01c20776b8a0ca84 - Kernel/Modules/AgentTicketArticleEdit.pm
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -34,22 +34,11 @@ use List::Util qw(any);
 
 # OTOBO modules
 use Kernel::Language qw(Translatable);
+# Rother OSS / AgentTicketArticleChange
 use Kernel::System::VariableCheck qw(IsArrayRefWithData IsHashRefWithData);
+# EO AgentTicketArticleChange
 
-our @ObjectDependencies = qw(
-    Kernel::Config
-    Kernel::Output::HTML::Layout
-    Kernel::System::Log
-    Kernel::System::Ticket
-    Kernel::System::Ticket::Article
-    Kernel::System::Ticket::ArticleFeatures
-    Kernel::System::Web::Request
-    Kernel::Output::HTML::DynamicField::Mask
-    Kernel::System::Group
-    Kernel::System::Queue
-    Kernel::System::StandardTemplate
-    Kernel::System::User
-);
+our $ObjectManagerDisabled = 1;
 
 sub Run {
     my ( $Self, %Param ) = @_;
@@ -144,7 +133,7 @@ sub Run {
 }
 
 # Rother OSS / AgentTicketArticleChange
-sub _Mask {
+sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
     my ( $Self, %Param ) = @_;
 
     # get config object
