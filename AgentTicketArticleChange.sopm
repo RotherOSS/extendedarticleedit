@@ -9,7 +9,9 @@
     <Description Lang="en">The package AgentTicketArticleChange adds the possibility to change ticket and article attributes.</Description>
     <Filelist>
         <File Permission="660" Location="Custom/Kernel/Modules/AgentTicketArticleEdit.pm" />
+        <File Permission="660" Location="Custom/Kernel/Output/HTML/ArticleAction/AgentTicketArticleDelete.pm" />
         <File Permission="660" Location="Custom/Kernel/Output/HTML/ArticleAction/AgentTicketArticleEdit.pm" />
+        <File Permission="660" Location="Custom/Kernel/Output/HTML/ArticleAction/AgentTicketArticleVersion.pm" />
         <File Permission="660" Location="Custom/Kernel/Output/HTML/Templates/Standard/AgentTicketArticleEdit.tt" />
         <File Permission="660" Location="Kernel/Config/Files/XML/AgentTicketArticleChange.xml" />
         <File Permission="660" Location="Kernel/Language/de_AgentTicketArticleChange.pm" />
