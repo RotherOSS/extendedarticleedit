@@ -57,13 +57,24 @@ sub CheckAccess {
     }
 
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+# Rother OSS / AgentTicketArticleChange
+    my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleEdit');
+# EO AgentTicketArticleChange
 
 # Rother OSS / AgentTicketArticleChange
 #     return if $Param{ChannelName} ne 'Internal';
 #     return if $Param{Article}->{IsVisibleForCustomer};
-    my $ChannelConfig = $ConfigObject->Get('Ticket::Frontend::Article::Actions')->{$Param{ChannelName}};
-    return unless IsHashRefWithData($ChannelConfig);
-    return unless IsHashRefWithData($ChannelConfig->{AgentTicketArticleEdit});
+    return if ($Param{Article}{IsVisibleForCustomer} && !$Config->{ArticleCustomerVisible});
+    if ( $Config->{Article} eq 'None' ) {
+        return;
+    }
+    elsif ( $Config->{Article} eq 'Internal' ) {
+        return unless $Param{ChannelName} eq 'Internal';
+        return unless $Param{Article}{SenderType} eq 'agent';
+    }
+    elsif ( $Config->{Article} eq 'Phone' ) {
+        return unless $Param{ChannelName} eq 'Phone';
+    }
 # EO AgentTicketArticleChange
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
@@ -75,7 +86,9 @@ sub CheckAccess {
 
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-    my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleEdit');
+# Rother OSS / AgentTicketArticleChange
+#     my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleEdit');
+# EO AgentTicketArticleChange
     if ( $Config->{Permission} ) {
         my $Ok = $TicketObject->TicketPermission(
             Type     => $Config->{Permission},
