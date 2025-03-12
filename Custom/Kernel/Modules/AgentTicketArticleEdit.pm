@@ -44,6 +44,11 @@ our @ObjectDependencies = qw(
     Kernel::System::Ticket::Article
     Kernel::System::Ticket::ArticleFeatures
     Kernel::System::Web::Request
+    Kernel::Output::HTML::DynamicField::Mask
+    Kernel::System::Group
+    Kernel::System::Queue
+    Kernel::System::StandardTemplate
+    Kernel::System::User
 );
 
 sub Run {

@@ -69,12 +69,13 @@ sub CheckAccess {
 # Rother OSS / AgentTicketArticleChange
 #     return if $Param{ChannelName} ne 'Internal';
 #     return if $Param{Article}->{IsVisibleForCustomer};
-    return if ($Param{Article}{IsVisibleForCustomer} && !$Config->{ArticleCustomerVisible});
+    return if ( $Param{Article}{IsVisibleForCustomer} && !$Config->{ArticleCustomerVisible} );
     if ( $Config->{Article} eq 'None' ) {
         return;
     }
     elsif ( $Config->{Article} eq 'Internal' ) {
         return unless $Param{ChannelName} eq 'Internal';
+
         # TODO what about system?
         return unless $Param{Article}{SenderType} eq 'agent';
     }
