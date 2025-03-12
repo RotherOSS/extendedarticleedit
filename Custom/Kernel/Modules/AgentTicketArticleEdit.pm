@@ -606,6 +606,23 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
     # End Widget Ticket Actions
 
     # Widget Article
+    my $ArticleEditingEnabled = 0;
+    if ( $Config->{Article} ) {
+        my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
+            ChannelID   => $Param{CommunicationChannelID},
+        );
+        if ( $CommunicationChannel{ChannelName} ne 'Email' ) {
+            if ( $Config->{Article} eq 'Both' ) {
+                $ArticleEditingEnabled = 1;
+            }
+            elsif ( $Config->{Article} eq 'Phone' || $Config->{Article} eq 'Internalt' ) {
+                if ( $Config->{Article} eq $CommunicationChannel{ChannelName} ) {
+                    $ArticleEditingEnabled = 1;
+                }
+            }
+        }
+    }
+
     if ( $Config->{Note} ) {
 
         $Param{WidgetStatus} = 'Collapsed';
@@ -637,23 +654,25 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
         }
 
         # show attachments
-        ATTACHMENT:
-        for my $Attachment ( @{ $Param{Attachments} } ) {
-            if (
-                $Attachment->{ContentID}
-                && $LayoutObject->{BrowserRichText}
-                && ( $Attachment->{ContentType} =~ /image/i )
-                && ( $Attachment->{Disposition} eq 'inline' )
-                )
-            {
-                next ATTACHMENT;
-            }
+        if ( $ArticleEditingEnabled ) {
+            ATTACHMENT:
+            for my $Attachment ( @{ $Param{Attachments} } ) {
+                if (
+                    $Attachment->{ContentID}
+                    && $LayoutObject->{BrowserRichText}
+                    && ( $Attachment->{ContentType} =~ /image/i )
+                    && ( $Attachment->{Disposition} eq 'inline' )
+                    )
+                {
+                    next ATTACHMENT;
+                }
 
-            push @{ $Param{AttachmentList} }, $Attachment;
+                push @{ $Param{AttachmentList} }, $Attachment;
+            }
         }
 
         # render article type dynamic fields
-        my $ArticleTypeDynamicFieldHTML = $Kernel::OM->Get('Kernel::Output::HTML::DynamicField::Mask')->EditSectionRender(
+        $Param{DynamicFieldHTML} = $Kernel::OM->Get('Kernel::Output::HTML::DynamicField::Mask')->EditSectionRender(
             Content              => $Self->{ArticleMaskDefinition},
             DynamicFields        => $Self->{DynamicField},
             LayoutObject         => $LayoutObject,
@@ -667,14 +686,6 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
                 CustomerUserID => $Param{CustomerUserID},
                 UserID         => $Self->{UserID},
                 $Param{DynamicField}->%*,
-            },
-        );
-
-        $LayoutObject->Block(
-            Name => 'WidgetArticle',
-            Data => {
-                %Param,
-                DynamicFieldHTML => $ArticleTypeDynamicFieldHTML,
             },
         );
 
@@ -859,7 +870,7 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
         }
 
         # show list of agents, that receive this note (ReplyToNote)
-        # at least sender of original note and all recepients of the original note
+        # at least sender of original note and all recipients of the original note
         # that couldn't be selected with involved/inform agents
         if ( $Self->{ReplyToArticle} ) {
 
@@ -896,6 +907,14 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
                 }
             }
         }
+
+        $LayoutObject->Block(
+            Name => 'Subject',
+        );
+
+        $LayoutObject->Block(
+            Name => 'RichText',
+        );
 
         if ( $Config->{NoteMandatory} ) {
             $LayoutObject->Block(
@@ -949,8 +968,13 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
         }
 
         # show time accounting box
-        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') ) {
-            if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{NoteMandatory} ) {
+        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
+
+            $LayoutObject->Block(
+                Name => 'TimeUnitsWrapper',
+            );
+
+            if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{TimeUnitsMandatory} ) {
                 $LayoutObject->Block(
                     Name => 'TimeUnitsLabelMandatory',
                     Data => \%Param,
