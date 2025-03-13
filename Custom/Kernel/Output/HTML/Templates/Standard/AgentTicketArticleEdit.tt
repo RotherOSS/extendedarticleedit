@@ -35,7 +35,9 @@
             <ul class="HeaderPopup">
                 <li class="HeaderPopupleft">
                     <h1>
+[% RenderBlockStart("HeaderAgentTicketArticleEdit") %]
 [% Translate("Edit Article \"%s\" of %s%s%s", Data.ArticleTitle, Config('Ticket::Hook'), Config('Ticket::HookDivider'), Data.TicketNumber) | html %]
+[% RenderBlockEnd("HeaderAgentTicketArticleEdit") %]
                  &mdash; [% Data.Title | html %]
             </h1>
                 </li>
@@ -378,7 +380,6 @@
                         <div class="Field">
                             <input type="checkbox" name="IsVisibleForCustomer" id="IsVisibleForCustomer"
                                 [% IF Data.IsVisibleForCustomer %]checked[% END %]
-                                [% IF Data.ArticleID != "" %]disabled[% END %]
                             />
                         </div>
                         <div class="Clear"></div>
