@@ -908,29 +908,33 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
             }
         }
 
-        $LayoutObject->Block(
-            Name => 'Subject',
-        );
+        if ( $ArticleEditingEnabled ) {
+            $LayoutObject->Block(
+                Name => 'Subject',
+                Data => \%Param,
+            );
 
-        $LayoutObject->Block(
-            Name => 'RichText',
-        );
+            $LayoutObject->Block(
+                Name => 'RichText',
+                Data => \%Param,
+            );
 
-        if ( $Config->{NoteMandatory} ) {
-            $LayoutObject->Block(
-                Name => 'SubjectLabelMandatory',
-            );
-            $LayoutObject->Block(
-                Name => 'RichTextLabelMandatory',
-            );
-        }
-        else {
-            $LayoutObject->Block(
-                Name => 'SubjectLabel',
-            );
-            $LayoutObject->Block(
-                Name => 'RichTextLabel',
-            );
+            if ( $Config->{NoteMandatory} ) {
+                $LayoutObject->Block(
+                    Name => 'SubjectLabelMandatory',
+                );
+                $LayoutObject->Block(
+                    Name => 'RichTextLabelMandatory',
+                );
+            }
+            else {
+                $LayoutObject->Block(
+                    Name => 'SubjectLabel',
+                );
+                $LayoutObject->Block(
+                    Name => 'RichTextLabel',
+                );
+            }
         }
 
         # build text template string
@@ -967,11 +971,19 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
             );
         }
 
+        if ( $Config->{IsVisibleForCustomer} && $Config->{ArticleCustomerVisible} ) {
+            $LayoutObject->Block(
+                Name => 'IsVisibleForCustomer',
+                Data => \%Param,
+            );
+        }
+
         # show time accounting box
         if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
 
             $LayoutObject->Block(
                 Name => 'TimeUnitsWrapper',
+                Data => \%Param,
             );
 
             if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{TimeUnitsMandatory} ) {
