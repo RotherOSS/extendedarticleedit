@@ -269,7 +269,6 @@
 
                     <fieldset class="TableLike FixedLabel">
 [% IF Data.WidgetStatus == 'Expanded' %]
-                        # TODO
                         <input type="hidden" id="CreateArticle" name="CreateArticle" value="1" />
 [% ELSE %]
                         <label for="CreateArticle">[% Translate("Create an Article") | html %]:</label>
