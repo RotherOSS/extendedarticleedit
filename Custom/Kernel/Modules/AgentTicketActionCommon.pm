@@ -121,7 +121,7 @@ sub new {
         Mask => $Self->{Action},
     ) || {};
 
-    # definitions are splitted up because article is rendered separately
+    # definitions are split up because article is rendered separately
     $Self->{TicketMaskDefinition}  = $TicketDefinition->{Mask};
     $Self->{ArticleMaskDefinition} = [];
     $Self->{DynamicField}          = {};
@@ -222,7 +222,7 @@ sub new {
         },
     ];
 
-    # dependancies of standard fields which are not defined via ACLs
+    # dependencies of standard fields which are not defined via ACLs
     $Self->{InternalDependancy} = {
         Dest => {
             NewUserID          => 1,
@@ -1306,23 +1306,76 @@ sub Run {
                 );
             }
             elsif ( $Self->{ArticleID} ) {
-                $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleEdit(
-                    TicketID                        => $Self->{TicketID},
-                    ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
-                    SenderType                      => 'agent',
-                    From                            => $From,
-                    MimeType                        => $MimeType,
-                    Charset                         => $LayoutObject->{UserCharset},
-                    UserID                          => $Self->{UserID},
-                    HistoryType                     => $Config->{HistoryType},
-                    HistoryComment                  => $Config->{HistoryComment},
-                    ForceNotificationToUserID       => \@NotifyUserIDs,
-                    ExcludeMuteNotificationToUserID => \@NotifyDone,
-                    UnlockOnAway                    => $UnlockOnAway,
-                    Attachment                      => \@Attachments,
-                    UserLogin                       => $Self->{UserLogin},
-                    %GetParam,
+
+                # check if editing is necessary by comparing article body
+                my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $Self->{ArticleID},
                 );
+                my %Article = $ArticleBackendObject->ArticleGet(
+                    TicketID      => $Self->{TicketID},
+                    ArticleID     => $Self->{ArticleID},
+                    DynamicFields => 1,
+                    RealNames     => 1,
+                    UserID        => $Self->{UserID}
+                );
+
+                # apply articleedit handling to body to allow clean comparison
+                my $CleanedBody = $GetParam{Body};
+                {
+                    # get html utils object
+                    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
+                    # add 'no body' if there is no body there!
+                    if ( !defined $CleanedBody ) {    # allow '0' as body
+                        $CleanedBody = '';
+                    }
+
+                    # process html article
+                    elsif ( $MimeType =~ /text\/html/i ) {
+                        $CleanedBody = $HTMLUtilsObject->ToAscii(
+                            String => $CleanedBody,
+                        );
+                    }
+                    elsif ( $MimeType && $MimeType eq "application/json" ) {
+
+                        # Keep JSON body unchanged
+                    }
+
+                    # if body isn't text, attach body as attachment (mostly done by OE) :-/
+                    elsif ( $MimeType && $MimeType !~ /\btext\b/i ) {
+                        $CleanedBody               = '- no text message => see attachment -';
+                    }
+
+                    # fix some bad stuff from some browsers (Opera)!
+                    else {
+                        $CleanedBody =~ s/(\n\r|\r\r\n|\r\n)/\n/g;
+                    }
+                }
+
+                if ( $Article{Body} ne $CleanedBody ) {
+                    $ArticleID = $ArticleBackendObject->ArticleEdit(
+                        TicketID                        => $Self->{TicketID},
+                        ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
+                        SenderType                      => 'agent',
+                        From                            => $From,
+                        MimeType                        => $MimeType,
+                        Charset                         => $LayoutObject->{UserCharset},
+                        UserID                          => $Self->{UserID},
+                        HistoryType                     => $Config->{HistoryType},
+                        HistoryComment                  => $Config->{HistoryComment},
+                        ForceNotificationToUserID       => \@NotifyUserIDs,
+                        ExcludeMuteNotificationToUserID => \@NotifyDone,
+                        UnlockOnAway                    => $UnlockOnAway,
+                        Attachment                      => \@Attachments,
+                        UserLogin                       => $Self->{UserLogin},
+                        %GetParam,
+                    );
+                }
+                else {
+                    $ArticleID = $Self->{ArticleID};
+                }
+
             }
             else {
                 $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleCreate(
@@ -1375,7 +1428,7 @@ sub Run {
             next DYNAMICFIELD if !$Visibility{"DynamicField_$DynamicFieldConfig->{Name}"};
             next DYNAMICFIELD if $DynamicFieldConfig->{Readonly};
 
-            # set the object ID (TicketID or ArticleID) depending on the field configration
+            # set the object ID (TicketID or ArticleID) depending on the field configuration
             my $ObjectID = $DynamicFieldConfig->{ObjectType} eq 'Article'
                 ? $Self->{ArticleID} || $ArticleID
                 : $Self->{TicketID};
@@ -1489,7 +1542,7 @@ sub Run {
 
                 my %NewChangedElements;
 
-                # which standard fields to check - FieldID => GetParamValue (neccessary for Dest)
+                # which standard fields to check - FieldID => GetParamValue (necessary for Dest)
                 my %Check = (
                     Dest             => 'QueueID',
                     NewUserID        => 'NewUserID',
@@ -1850,7 +1903,7 @@ sub Run {
 
         my @TemplateAJAX;
 
-        # update ticket body and attachements if needed.
+        # update ticket body and attachments if needed.
         if ( $ChangedStdFields{StandardTemplateID} ) {
             my @TicketAttachments;
             my $TemplateText;
@@ -2148,7 +2201,7 @@ sub Run {
 
                 my %NewChangedElements;
 
-                # which standard fields to check - FieldID => GetParamValue (neccessary for Dest)
+                # which standard fields to check - FieldID => GetParamValue (necessary for Dest)
                 my %Check = (
                     Dest             => 'QueueID',
                     NewUserID        => 'NewUserID',
@@ -3086,7 +3139,7 @@ sub _Mask {
         }
 
         # show list of agents, that receive this note (ReplyToNote)
-        # at least sender of original note and all recepients of the original note
+        # at least sender of original note and all recipients of the original note
         # that couldn't be selected with involved/inform agents
         if ( $Self->{ReplyToArticle} ) {
 
@@ -3258,7 +3311,7 @@ sub _GetResponsible {
         %ShownUsers = %AllGroupsMembers;
     }
 
-    # show only users with responsible or rw pemissions in the queue
+    # show only users with responsible or rw permissions in the queue
     elsif ( $Param{QueueID} && !$Param{OwnerAll} ) {
         my $GID = $Kernel::OM->Get('Kernel::System::Queue')->GetQueueGroupID(
             QueueID => $Param{NewQueueID} || $Param{QueueID}
@@ -3303,7 +3356,7 @@ sub _GetOwners {
         %ShownUsers = %AllGroupsMembers;
     }
 
-    # show only users with owner or rw pemissions in the queue
+    # show only users with owner or rw permissions in the queue
     elsif ( $Param{QueueID} && !$Param{OwnerAll} ) {
         my $GID = $Kernel::OM->Get('Kernel::System::Queue')->GetQueueGroupID(
             QueueID => $Param{NewQueueID} || $Param{QueueID}
