@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otobo_config version="2.0" init="Changes">
     <Setting Name="Ticket::Frontend::AgentTicketArticleEdit###Article" Required="1" Valid="1">
-        <Description Translatable="1">Sets the time units in the article change screen of the agent interface. Note that time units are not added, but get overwritten via this screen.</Description>
+        <Description Translatable="1">Defines for which article channels the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".</Description>
         <Navigation>Frontend::Agent::View::TicketArticleEdit</Navigation>
         <Value>
             <Item ValueType="Select" SelectedID="Internal">
@@ -13,14 +13,14 @@
         </Value>
     </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible" Required="1" Valid="1">
-        <Description Translatable="1">Sets the time units in the article change screen of the agent interface. Note that time units are not added, but get overwritten via this screen.</Description>
+        <Description Translatable="1">Enables or disables the editing of articles which are visible for the customer in general.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleEdit</Navigation>
         <Value>
             <Item ValueType="Checkbox">0</Item>
         </Value>
     </Setting>
     <Setting Name="Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer" Required="1" Valid="1">
-        <Description Translatable="1">Sets the time units in the article change screen of the agent interface. Note that time units are not added, but get overwritten via this screen.</Description>
+        <Description Translatable="1">Sets customer visibility of the article in the article edit screen of the agent interface.</Description>
         <Navigation>Frontend::Agent::View::TicketArticleEdit</Navigation>
         <Value>
             <Item ValueType="Checkbox">0</Item>
