@@ -257,6 +257,7 @@
             </div>
 [% RenderBlockEnd("WidgetTicketActions") %]
 
+[% RenderBlockStart("WidgetArticle") %]
             <div class="WidgetSimple [% Data.WidgetStatus | html %]" id="WidgetArticle">
                 <div class="Header">
                     <div class="WidgetAction Toggle">
@@ -406,6 +407,7 @@
                     </fieldset>
                 </div>
             </div>
+[% RenderBlockEnd("WidgetArticle") %]
 
         </div>
         <div class="Footer">

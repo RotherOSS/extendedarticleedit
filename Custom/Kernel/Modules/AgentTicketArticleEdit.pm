@@ -636,6 +636,11 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
             $Param{WidgetStatus} = 'Expanded';
         }
 
+        $LayoutObject->Block(
+            Name => 'WidgetArticle',
+            Data => \%Param,
+        );
+
         if ( $Config->{NoteMandatory} ) {
             $Param{SubjectRequired} = 'Validate_Required';
             $Param{BodyRequired}    = 'Validate_Required';
