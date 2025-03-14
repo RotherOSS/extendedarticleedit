@@ -65,16 +65,6 @@ sub CheckAccess {
 #     return if $Param{ChannelName} ne 'Internal';
 #     return if $Param{Article}->{IsVisibleForCustomer};
     return if ($Param{Article}{IsVisibleForCustomer} && !$Config->{ArticleCustomerVisible});
-    if ( $Config->{Article} eq 'None' ) {
-        return;
-    }
-    elsif ( $Config->{Article} eq 'Internal' ) {
-        return unless $Param{ChannelName} eq 'Internal';
-        return unless $Param{Article}{SenderType} eq 'agent';
-    }
-    elsif ( $Config->{Article} eq 'Phone' ) {
-        return unless $Param{ChannelName} eq 'Phone';
-    }
 # EO AgentTicketArticleChange
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
