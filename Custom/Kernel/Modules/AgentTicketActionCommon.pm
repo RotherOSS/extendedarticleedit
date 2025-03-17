@@ -25,7 +25,10 @@ use namespace::autoclean;
 use utf8;
 
 # core modules
-use List::Util qw(any);
+# Rother OSS / AgentTicketArticleChange
+# use List::Util qw(any);
+use List::Util qw(any first);
+# EO AgentTicketArticleChange
 
 # CPAN modules
 
@@ -1404,7 +1407,55 @@ sub Run {
                     }
                 }
 
-                if ( $Article{Body} ne $CleanedBody ) {
+                # compare attachments
+                my $AttachmentsDifferent = 0;
+                {
+                    # define if rich text should be used
+                    $Self->{RichText} = $ConfigObject->Get('Ticket::Frontend::ZoomRichTextForce')
+                        || $LayoutObject->{BrowserRichText}
+                        || 0;
+
+                    # Always exclude plain text attachment, but exclude HTML body only if rich text is enabled.
+                    $Self->{ExcludeAttachments} = {
+                        ExcludePlainText => 1,
+                        ExcludeHTMLBody  => $Self->{RichText},
+                        ExcludeInline    => $Self->{RichText},
+                    };
+
+                    # Get attachment index (excluding body attachments).
+                    my %AtmIndex = $ArticleBackendObject->ArticleAttachmentIndex(
+                        ArticleID => $Self->{ArticleID},
+                        %{ $Self->{ExcludeAttachments} },
+                    );
+
+                    ATTACHMENT:
+                    for my $Attachment ( @Attachments ) {
+                        my $CompareAttachment = first { $_->{Filename} eq $Attachment->{Filename} } values %AtmIndex;
+                        if ( !IsHashRefWithData($CompareAttachment) ) {
+                            $AttachmentsDifferent = 1;
+                            last ATTACHMENT;
+                        }
+                        if ( $CompareAttachment->{FilesizeRaw} != $Attachment->{Filesize} ) {
+                            $AttachmentsDifferent = 1;
+                            last ATTACHMENT;
+                        }
+                    }
+
+                    EXISTINGATTACHMENT:
+                    for my $Attachment ( values %AtmIndex ) {
+                        my $CheckAttachment = first { $_->{Filename} eq $Attachment->{Filename} } @Attachments;
+                        if ( !IsHashRefWithData($CheckAttachment) ) {
+                            $AttachmentsDifferent = 1;
+                            last EXISTINGATTACHMENT;
+                        }
+                    }
+                }
+
+                if (
+                    ( $Article{Body} ne $CleanedBody )
+                    || ( $Article{Subject} ne $GetParam{Subject} )
+                    || ( $AttachmentsDifferent )
+                ) {
                     $ArticleID = $ArticleBackendObject->ArticleEdit(
                         TicketID                        => $Self->{TicketID},
                         ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
