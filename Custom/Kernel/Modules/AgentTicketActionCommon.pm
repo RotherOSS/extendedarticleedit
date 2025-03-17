@@ -1032,9 +1032,6 @@ sub Run {
                     %Ticket,
                     %GetParam,
                     %Error,
-# Rother OSS / AgentTicketArticleChange
-                    ArticleID => $Self->{ArticleID},
-# EO AgentTicketArticleChange
                     Visibility       => \%Visibility,
                     DFPossibleValues => \%DynamicFieldPossibleValues,
                     DFErrors         => \%DynamicFieldValidationResult,
@@ -1427,6 +1424,18 @@ sub Run {
                     );
                 }
                 else {
+                    my $IsVisibleForCustomer = $Config->{IsVisibleForCustomerDefault};
+                    if ( $Config->{IsVisibleForCustomer} ) {
+                        $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
+
+                        $ArticleBackendObject->ArticleUpdate(
+                            TicketID  => $Self->{TicketID},
+                            ArticleID => $Self->{ArticleID},
+                            Key       => 'IsVisibleForCustomer',
+                            Value     => $IsVisibleForCustomer,
+                            UserID    => $Self->{UserID},
+                        );
+                    }
                     $ArticleID = $Self->{ArticleID};
                 }
 # EO AgentTicketArticleChange

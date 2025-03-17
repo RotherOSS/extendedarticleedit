@@ -610,10 +610,10 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
     if ( $Config->{Article} ) {
 
         # if not given (e.g. in error case), fetch communication channel id by article id
-        if ( !$Param{CommunicationChannelID} && $Param{ArticleID} ) {
+        if ( !$Param{CommunicationChannelID} && $Self->{ArticleID} ) {
             my @BaseArticles = $Kernel::OM->Get('Kernel::System::Ticket::Article')->ArticleList(
-                TicketID  => $Param{TicketID},
-                ArticleID => $Param{ArticleID},
+                TicketID  => $Self->{TicketID},
+                ArticleID => $Self->{ArticleID},
             );
             if (@BaseArticles) {
                 $Param{CommunicationChannelID} = $BaseArticles[0]->{CommunicationChannelID};
@@ -634,6 +634,15 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
             }
         }
     }
+
+    my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
+        TicketID  => $Self->{TicketID},
+        ArticleID => $Self->{ArticleID},
+    );
+    my %ArticleData = $ArticleBackendObject->ArticleGet(
+        TicketID  => $Self->{TicketID},
+        ArticleID => $Self->{ArticleID},
+    );
 
     if ( $Config->{Note} ) {
 
@@ -663,6 +672,7 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
         }
 
         # set customer visibility of this note to the same value as the article for whom this is the reply
+        $Param{IsVisibleForCustomer} //= $ArticleData{IsVisibleForCustomer};
         if ( $Self->{ReplyToArticle} && !defined $Param{IsVisibleForCustomer} ) {
             $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}->{IsVisibleForCustomer};
         }
