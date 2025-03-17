@@ -608,6 +608,18 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
     # Widget Article
     my $ArticleEditingEnabled = 0;
     if ( $Config->{Article} ) {
+
+        # if not given (e.g. in error case), fetch communication channel id by article id
+        if ( !$Param{CommunicationChannelID} && $Param{ArticleID} ) {
+            my @BaseArticles = $Kernel::OM->Get('Kernel::System::Ticket::Article')->ArticleList(
+                TicketID  => $Param{TicketID},
+                ArticleID => $Param{ArticleID},
+            );
+            if (@BaseArticles) {
+                $Param{CommunicationChannelID} = $BaseArticles[0]->{CommunicationChannelID};
+            }
+        }
+
         my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
             ChannelID   => $Param{CommunicationChannelID},
         );
@@ -615,7 +627,7 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
             if ( $Config->{Article} eq 'Both' ) {
                 $ArticleEditingEnabled = 1;
             }
-            elsif ( $Config->{Article} eq 'Phone' || $Config->{Article} eq 'Internalt' ) {
+            elsif ( $Config->{Article} eq 'Phone' || $Config->{Article} eq 'Internal' ) {
                 if ( $Config->{Article} eq $CommunicationChannel{ChannelName} ) {
                     $ArticleEditingEnabled = 1;
                 }

@@ -765,7 +765,39 @@ sub Run {
             }
         }
 
-        if ( $Config->{Note} && $Config->{NoteMandatory} ) {
+# Rother OSS / AgentTicketArticleChange
+        # if action is ArticleEdit, check if article is editable
+        my $ArticleEditingEnabled = 1;
+        if ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{Article} ) {
+
+            # fetch communication channel id by article id
+            if ( $Self->{ArticleID} ) {
+                my @BaseArticles = $Kernel::OM->Get('Kernel::System::Ticket::Article')->ArticleList(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $Self->{ArticleID},
+                );
+                if (@BaseArticles) {
+                    my $CommunicationChannelID = $BaseArticles[0]->{CommunicationChannelID};
+                    my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
+                        ChannelID   => $CommunicationChannelID,
+                    );
+                    if ( $CommunicationChannel{ChannelName} eq 'Email' ) {
+                        $ArticleEditingEnabled = 0;
+                    }
+                    elsif ( $Config->{Article} eq 'Phone' || $Config->{Article} eq 'Internal' ) {
+                        if ( $Config->{Article} ne $CommunicationChannel{ChannelName} ) {
+                            $ArticleEditingEnabled = 0;
+                        }
+                    }
+                }
+            }
+        }
+# EO AgentTicketArticleChange
+
+# Rother OSS / AgentTicketArticleChange
+#         if ( $Config->{Note} && $Config->{NoteMandatory} ) {
+        if ( $Config->{Note} && $Config->{NoteMandatory} && $ArticleEditingEnabled ) {
+# EO AgentTicketArticleChange
 
             # check subject
             if ( !$GetParam{Subject} ) {
@@ -1000,6 +1032,9 @@ sub Run {
                     %Ticket,
                     %GetParam,
                     %Error,
+# Rother OSS / AgentTicketArticleChange
+                    ArticleID => $Self->{ArticleID},
+# EO AgentTicketArticleChange
                     Visibility       => \%Visibility,
                     DFPossibleValues => \%DynamicFieldPossibleValues,
                     DFErrors         => \%DynamicFieldValidationResult,
