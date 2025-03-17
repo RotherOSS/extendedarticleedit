@@ -962,6 +962,11 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
                     Name => 'RichTextLabel',
                 );
             }
+
+            $LayoutObject->Block(
+                Name => 'Attachments',
+                Data => \%Param,
+            );
         }
 
         # build text template string
