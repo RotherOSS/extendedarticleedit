@@ -784,7 +784,7 @@ sub _Mask {
             delete $ReplyToUserIDs{ $Self->{UserID} };
         }
 
-        if ( $Config->{InformAgent} || $Config->{InvolvedAgent} ) {
+        if ( $ArticleEditingEnabled && ( $Config->{InformAgent} || $Config->{InvolvedAgent} ) ) {
             $LayoutObject->Block(
                 Name => 'InformAdditionalAgents',
             );
@@ -794,7 +794,7 @@ sub _Mask {
         my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
         # get all agents for "involved agents"
-        if ( $Config->{InvolvedAgent} ) {
+        if ( $ArticleEditingEnabled && $Config->{InvolvedAgent} ) {
 
             my @UserIDs = $TicketObject->TicketInvolvedAgentsList(
                 TicketID => $Self->{TicketID},
@@ -847,7 +847,7 @@ sub _Mask {
         }
 
         # agent list
-        if ( $Config->{InformAgent} ) {
+        if ( $ArticleEditingEnabled && $Config->{InformAgent} ) {
 
             # get inform user list
             my %InformAgents;
@@ -888,7 +888,7 @@ sub _Mask {
         }
 
         # get involved
-        if ( $Config->{InvolvedAgent} ) {
+        if ( $ArticleEditingEnabled && $Config->{InvolvedAgent} ) {
 
             $LayoutObject->Block(
                 Name => 'InvolvedAgent',
