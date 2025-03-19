@@ -1541,6 +1541,20 @@ sub Run {
             );
             $ArticleID = $Self->{ArticleID};
         }
+
+        if ( $Config->{TimeUnits} ) {
+
+            # time accounting
+            $ArticleID = $Self->{ArticleID};
+            if ( $GetParam{TimeUnits} ) {
+                $TicketObject->TicketAccountTime(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $ArticleID,
+                    TimeUnit  => $GetParam{TimeUnits},
+                    UserID    => $Self->{UserID},
+                );
+            }
+        }
 # EO AgentTicketArticleChange
 
         # set dynamic fields
