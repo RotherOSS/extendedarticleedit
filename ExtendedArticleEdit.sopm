@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otobo_package version="1.0">
-    <Name>AgentTicketArticleChange</Name>
+    <Name>ExtendedArticleEdit</Name>
     <Version>0.0.0</Version>
     <Framework>11.0.x</Framework>
     <Vendor>Rother OSS GmbH</Vendor>
     <URL>https://otobo.io/</URL>
     <License>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</License>
-    <Description Lang="en">The package AgentTicketArticleChange adds the possibility to change ticket and article attributes.</Description>
+    <Description Lang="en">The package ExtendedArticleEdit adds the possibility to change ticket and article attributes.</Description>
     <Filelist>
         <File Permission="660" Location="Custom/Kernel/Modules/AgentTicketActionCommon.pm" />
         <File Permission="660" Location="Custom/Kernel/Modules/AgentTicketArticleEdit.pm" />
@@ -14,7 +14,7 @@
         <File Permission="660" Location="Custom/Kernel/Output/HTML/ArticleAction/AgentTicketArticleEdit.pm" />
         <File Permission="660" Location="Custom/Kernel/Output/HTML/ArticleAction/AgentTicketArticleVersion.pm" />
         <File Permission="660" Location="Custom/Kernel/Output/HTML/Templates/Standard/AgentTicketArticleEdit.tt" />
-        <File Permission="660" Location="Kernel/Config/Files/XML/AgentTicketArticleChange.xml" />
-        <File Permission="660" Location="Kernel/Language/de_AgentTicketArticleChange.pm" />
+        <File Permission="660" Location="Kernel/Config/Files/XML/ExtendedArticleEdit.xml" />
+        <File Permission="660" Location="Kernel/Language/de_ExtendedArticleEdit.pm" />
     </Filelist>
 </otobo_package>
