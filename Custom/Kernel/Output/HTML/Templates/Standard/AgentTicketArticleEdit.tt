@@ -263,7 +263,7 @@
                     <div class="WidgetAction Toggle">
                         <a href="#" title="[% Translate("Toggle this widget") | html %]"><i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i></a>
                     </div>
-                    <h2>[% Translate("Add Article") | html %]</h2>
+                    <h2>[% Translate("Edit Article") | html %]</h2>
                 </div>
                 <div class="Content">
 
