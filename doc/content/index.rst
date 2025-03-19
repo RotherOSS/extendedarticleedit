@@ -7,7 +7,7 @@ Sacrifice to Sphinx
 
 Description
 ===========
-The package AgentTicketArticleChange enhances the capabilities of the existing article editing feature.
+The package ExtendedArticleEdit enhances the capabilities of the existing article editing feature.
 
 System requirements
 ===================
