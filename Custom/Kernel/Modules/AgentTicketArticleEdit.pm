@@ -133,7 +133,7 @@ sub Run {
 }
 
 # Rother OSS / AgentTicketArticleChange
-sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
+sub _Mask {
     my ( $Self, %Param ) = @_;
 
     # get config object
@@ -1003,7 +1003,7 @@ sub _Mask {         ## no critic qw(ProhibitUnusedPrivateSubroutines)
             );
         }
 
-        if ( $Config->{IsVisibleForCustomer} && $Config->{ArticleCustomerVisible} ) {
+        if ( $Config->{IsVisibleForCustomer} ) {
             $LayoutObject->Block(
                 Name => 'IsVisibleForCustomer',
                 Data => \%Param,
