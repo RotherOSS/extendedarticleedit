@@ -25,10 +25,10 @@ use namespace::autoclean;
 use utf8;
 
 # core modules
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 # use List::Util qw(any);
 use List::Util qw(any first);
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
 # CPAN modules
 
@@ -768,7 +768,7 @@ sub Run {
             }
         }
 
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
         # if action is ArticleEdit, check if article is editable
         my $ArticleEditingEnabled = 1;
         if ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{Article} ) {
@@ -795,12 +795,12 @@ sub Run {
                 }
             }
         }
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 #         if ( $Config->{Note} && $Config->{NoteMandatory} ) {
         if ( $Config->{Note} && $Config->{NoteMandatory} && $ArticleEditingEnabled ) {
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
             # check subject
             if ( !$GetParam{Subject} ) {
@@ -1341,7 +1341,7 @@ sub Run {
                 );
             }
             elsif ( $Self->{ArticleID} ) {
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 #                 $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleEdit(
 #                     TicketID                        => $Self->{TicketID},
 #                     ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
@@ -1477,7 +1477,7 @@ sub Run {
                 else {
                     $ArticleID = $Self->{ArticleID};
                 }
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
             }
             else {
                 $ArticleID = $Kernel::OM->Get('Kernel::System::Ticket::Article::Backend::Internal')->ArticleCreate(
@@ -1522,7 +1522,7 @@ sub Run {
 
         }
 
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
         if ( $Config->{IsVisibleForCustomer} ) {
             my $IsVisibleForCustomer = $Config->{IsVisibleForCustomerDefault};
             $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
@@ -1555,7 +1555,7 @@ sub Run {
                 );
             }
         }
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
         # set dynamic fields
         # cycle through the activated Dynamic Fields for this screen

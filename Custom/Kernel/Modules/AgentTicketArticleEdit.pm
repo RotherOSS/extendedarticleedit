@@ -26,17 +26,17 @@ use namespace::autoclean;
 use parent qw( Kernel::Modules::AgentTicketActionCommon );
 
 # core modules
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 use List::Util qw(any);
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
 # CPAN modules
 
 # OTOBO modules
 use Kernel::Language qw(Translatable);
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 use Kernel::System::VariableCheck qw(IsArrayRefWithData IsHashRefWithData);
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
 our $ObjectManagerDisabled = 1;
 
@@ -132,7 +132,7 @@ sub Run {
     return $Self->SUPER::Run(%Param);
 }
 
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 sub _Mask {
     my ( $Self, %Param ) = @_;
 
@@ -1071,7 +1071,7 @@ sub _Mask {
         Data         => \%Param
     );
 }
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
 sub _ArticleDeletion {
     my ( $Self, %Param ) = @_;

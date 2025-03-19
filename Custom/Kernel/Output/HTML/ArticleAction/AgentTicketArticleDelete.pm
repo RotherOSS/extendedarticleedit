@@ -56,15 +56,15 @@ sub CheckAccess {
     }
 
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
     my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleEdit');
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
 
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 #     return if $Param{ChannelName} ne 'Internal';
 #     return if $Param{Article}->{IsVisibleForCustomer};
     return if ( $Param{Article}{IsVisibleForCustomer} && !$Config->{ArticleCustomerVisible} );
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
     # NOTE checking for AgentTicketArticleEdit because
@@ -78,9 +78,9 @@ sub CheckAccess {
 
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-# Rother OSS / AgentTicketArticleChange
+# Rother OSS / ExtendedArticleEdit
 #     my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketArticleEdit');
-# EO AgentTicketArticleChange
+# EO ExtendedArticleEdit
     if ( $Config->{Permission} ) {
         my $Ok = $TicketObject->TicketPermission(
             Type     => $Config->{Permission},
