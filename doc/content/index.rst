@@ -28,9 +28,14 @@ Usage
 =====
 After installation and setup, the editing of articles of configured type(s) are possible, as well as editing the customer visibility and setting time units, if enabled.
 
+Note that time units are added instead of being overwritten.
+
 Setup
 -----
-The setup is similar to other ticket screens in OTOBO. Special settings are Ticket::Frontend::AgentTicketArticleChange###IsVisibleForCustomer and Ticket::Frontend::AgentTicketArticleChange###TimeUnitsOverwrite, as they allow to enable or disable the respective attribute for the article change screen.
+The setup is similar to other ticket screens in OTOBO. Important settings are:
+
+- Ticket::Frontend::AgentTicketArticleEdit###Article: Configure for which article types the attributes subject, body and attachments are editable
+- Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible: Set whether articles which are already visible for the customer are editable
 
 Configuration Reference
 -----------------------
