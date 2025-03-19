@@ -1474,21 +1474,6 @@ sub Run {
                         %GetParam,
                     );
                 }
-                else {
-                    my $IsVisibleForCustomer = $Config->{IsVisibleForCustomerDefault};
-                    if ( $Config->{IsVisibleForCustomer} ) {
-                        $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
-
-                        $ArticleBackendObject->ArticleUpdate(
-                            TicketID  => $Self->{TicketID},
-                            ArticleID => $Self->{ArticleID},
-                            Key       => 'IsVisibleForCustomer',
-                            Value     => $IsVisibleForCustomer,
-                            UserID    => $Self->{UserID},
-                        );
-                    }
-                    $ArticleID = $Self->{ArticleID};
-                }
 # EO AgentTicketArticleChange
             }
             else {
@@ -1533,6 +1518,27 @@ sub Run {
             );
 
         }
+
+# Rother OSS / AgentTicketArticleChange
+        if ( $Config->{IsVisibleForCustomer} ) {
+            my $IsVisibleForCustomer = $Config->{IsVisibleForCustomerDefault};
+            $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
+
+            my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
+                TicketID  => $Self->{TicketID},
+                ArticleID => $Self->{ArticleID},
+            );
+
+            $ArticleBackendObject->ArticleUpdate(
+                TicketID  => $Self->{TicketID},
+                ArticleID => $Self->{ArticleID},
+                Key       => 'IsVisibleForCustomer',
+                Value     => $IsVisibleForCustomer,
+                UserID    => $Self->{UserID},
+            );
+        }
+        $ArticleID = $Self->{ArticleID};
+# EO AgentTicketArticleChange
 
         # set dynamic fields
         # cycle through the activated Dynamic Fields for this screen
