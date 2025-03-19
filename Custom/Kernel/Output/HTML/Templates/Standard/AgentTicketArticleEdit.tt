@@ -16,6 +16,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
+# IMPORTANT
+#   package markers and original code are missing because Template::Toolkit evaluates outcommented code
+
 [% RenderBlockStart("Properties") %]
 
 <form action="[% Env("CGIHandle") %]" method="post" enctype="multipart/form-data" name="compose" id="Compose" class="Validate PreventMultipleSubmits">
