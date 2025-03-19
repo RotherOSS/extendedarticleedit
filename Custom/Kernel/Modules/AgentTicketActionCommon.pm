@@ -1474,6 +1474,9 @@ sub Run {
                         %GetParam,
                     );
                 }
+                else {
+                    $ArticleID = $Self->{ArticleID};
+                }
 # EO AgentTicketArticleChange
             }
             else {
@@ -1536,8 +1539,8 @@ sub Run {
                 Value     => $IsVisibleForCustomer,
                 UserID    => $Self->{UserID},
             );
+            $ArticleID = $Self->{ArticleID};
         }
-        $ArticleID = $Self->{ArticleID};
 # EO AgentTicketArticleChange
 
         # set dynamic fields
