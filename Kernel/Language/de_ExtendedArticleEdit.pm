@@ -29,9 +29,9 @@ sub Data {
     # SysConfig
     $Self->{Translation}{'Both'}     = 'Beides';
     $Self->{Translation}{'Internal'} = 'Intern';
-    $Self->{Translation}{'Defines for which article channels the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".'} = 'Definiert, für welche Artikel-Typen der Betreff, der Text und die Anhänge geändert werden können. "Beides" beinhaltet "Telefon" und "Intern".';
+    $Self->{Translation}{'Defines for which article types the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".'} = 'Definiert, für welche Artikel-Typen der Betreff, der Text und die Anhänge geändert werden können. "Beides" beinhaltet "Telefon" und "Intern".';
     $Self->{Translation}{'Enables or disables the editing of articles which are visible for the customer in general.'} = 'Aktiviert oder deaktiviert das Bearbeiten von Artikeln, die für den Kunden sichtbar sind.';
-    $Self->{Translation}{'Sets customer visibility of the article in the article edit screen of the agent interface.'} = 'Setzt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich.';
+    $Self->{Translation}{'Adds customer visibility of the article to the article edit screen of the agent interface.'} = 'Fügt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich hinzu.';
     $Self->{Translation}{'Sets the time units in the ticket note screen of the agent interface.'} = 'Setzt die Zeitbuchung im Artikel-ändern-Bildschirm von Tickets im Agentenbereich.';
     $Self->{Translation}{'Sets if time units must be set by the agent.'} = 'Gibt an, ob Zeiteinheiten durch den Agenten gesetzt werden müssen.';
 
