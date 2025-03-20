@@ -7,7 +7,7 @@ Sacrifice to Sphinx
 
 Description
 ===========
-The package ExtendedArticleEdit enhances the capabilities of the existing article editing feature.
+The package ExtendedArticleEdit allows editing of article dynamic fields, customer visibility and time accounting for all article types, including E-Mails, as well as editing subject, body and attachments for internal and phone articles.
 
 System requirements
 ===================
@@ -26,16 +26,22 @@ Third-party software
 
 Usage
 =====
+
+
+
 After installation and setup, the editing of articles of configured type(s) are possible, as well as editing the customer visibility and setting time units, if enabled.
 
 Note that time units are added instead of being overwritten.
 
 Setup
 -----
-The setup is similar to other ticket screens in OTOBO. Important settings are:
+Per default, editing in general is enabled for all articles which are not visible to the customer. If articles which are visible to the customer can be edited, is controlled by the system configuration setting ``Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible``.
 
-- Ticket::Frontend::AgentTicketArticleEdit###Article: Configure for which article types the attributes subject, body and attachments are editable
-- Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible: Set whether articles which are already visible for the customer are editable
+Editing the article subject, body and attachments is in general only possible for internal and phone articles and per default only enabled for internal articles. This is controlled by the system configuration setting ``Ticket::Frontend::AgentTicketArticleEdit###Article``.
+
+Time units and the customer visibility state of articles are not displayed per default in the article edit screen, but can be enabled via the system configuration settings ``Ticket::Frontend::AgentTicketArticleEdit###TimeUnits`` and ``Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer``.
+
+It is also possible to set time units as mandatory via the system configuration setting ``Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory``.
 
 Configuration Reference
 -----------------------
