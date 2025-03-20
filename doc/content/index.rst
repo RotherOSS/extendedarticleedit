@@ -49,13 +49,13 @@ Configuration Reference
 Frontend::Agent::View::TicketArticleEdit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Sets customer visibility of the article in the article edit screen of the agent interface.
-
 Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Sets if time units must be set by the agent.
+
+Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Adds customer visibility of the article to the article edit screen of the agent interface.
 
 Ticket::Frontend::AgentTicketArticleEdit###TimeUnits
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -63,7 +63,7 @@ Sets the time units in the ticket note screen of the agent interface.
 
 Ticket::Frontend::AgentTicketArticleEdit###Article
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Defines for which article channels the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".
+Defines for which article types the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".
 
 Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
