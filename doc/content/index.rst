@@ -28,19 +28,17 @@ Usage
 =====
 Editing of subject, body and attachments in general is already possible for internal notes. With this package, editing can be enabled for phone and email articles as well, alongside with editing further article attributes like customer visibility state, adding time units and editing article dynamic field values. However, editing subject, body and attachments can be en- or disabled for internal and phone articles and is in general not possible for E-Mail articles.
 
-Editing an article without having enabled editing subject, body and attachments may look like this:
+Editing an article without having enabled editing subject, body and attachments may look like figure 3.1.
 
 .. figure:: images/screenshot_01.png
-   :align: left
    :scale: 35%
    :alt: The screenshot shows an article edit screen without subject, body and attachments.
 
    The screenshot shows an article edit screen without subject, body and attachments.
 
-Editing an article for which editing of subject, body and attachments is enabled may look like this:
+Editing an article for which editing of subject, body and attachments is enabled may look like figure 3.2.
 
 .. figure:: images/screenshot_02.png
-   :align: left
    :scale: 35%
    :alt: The screenshot shows an article edit screen with subject, body and attachments.
 
