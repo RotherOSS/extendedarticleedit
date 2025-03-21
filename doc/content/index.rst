@@ -31,6 +31,7 @@ Editing of subject, body and attachments in general is already possible for inte
 Editing an article without having enabled editing subject, body and attachments may look like this:
 
 .. figure:: images/screenshot_01.png
+   :align: left
    :scale: 35%
    :alt: The screenshot shows an article edit screen without subject, body and attachments.
 
@@ -39,6 +40,7 @@ Editing an article without having enabled editing subject, body and attachments 
 Editing an article for which editing of subject, body and attachments is enabled may look like this:
 
 .. figure:: images/screenshot_02.png
+   :align: left
    :scale: 35%
    :alt: The screenshot shows an article edit screen with subject, body and attachments.
 
@@ -48,13 +50,13 @@ Note that time units are added instead of being overwritten.
 
 Setup
 -----
-Per default, editing in general is enabled for all articles which are not visible to the customer. If articles which are visible to the customer can be edited, is controlled by the system configuration setting ``Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible``.
+Per default, editing in general is enabled for all articles which are not visible to the customer. If articles which are visible to the customer can be edited, is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible**.
 
-Editing the article subject, body and attachments is in general only possible for internal and phone articles and per default only enabled for internal articles. This is controlled by the system configuration setting ``Ticket::Frontend::AgentTicketArticleEdit###Article``.
+Editing the article subject, body and attachments is in general only possible for internal and phone articles and per default only enabled for internal articles. This is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###Article**.
 
-Time units and the customer visibility state of articles are not displayed per default in the article edit screen, but can be enabled via the system configuration settings ``Ticket::Frontend::AgentTicketArticleEdit###TimeUnits`` and ``Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer``.
+Time units and the customer visibility state of articles are not displayed per default in the article edit screen, but can be enabled via the system configuration settings **Ticket::Frontend::AgentTicketArticleEdit###TimeUnits** and **Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer**.
 
-It is also possible to set time units as mandatory via the system configuration setting ``Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory``.
+It is also possible to set time units as mandatory via the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory**.
 
 Configuration Reference
 -----------------------
