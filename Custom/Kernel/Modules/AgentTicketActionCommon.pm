@@ -1428,25 +1428,21 @@ sub Run {
                         %{ $Self->{ExcludeAttachments} },
                     );
 
-                    ATTACHMENT:
-                    for my $Attachment ( @Attachments ) {
-                        my $CompareAttachment = first { $_->{Filename} eq $Attachment->{Filename} } values %AtmIndex;
-                        if ( !IsHashRefWithData($CompareAttachment) ) {
-                            $AttachmentsDifferent = 1;
-                            last ATTACHMENT;
-                        }
-                        if ( $CompareAttachment->{FilesizeRaw} != $Attachment->{Filesize} ) {
-                            $AttachmentsDifferent = 1;
-                            last ATTACHMENT;
-                        }
+                    if ( scalar @Attachments != scalar( values %AtmIndex ) ) {
+                        $AttachmentsDifferent = 1;
                     }
-
-                    EXISTINGATTACHMENT:
-                    for my $Attachment ( values %AtmIndex ) {
-                        my $CheckAttachment = first { $_->{Filename} eq $Attachment->{Filename} } @Attachments;
-                        if ( !IsHashRefWithData($CheckAttachment) ) {
-                            $AttachmentsDifferent = 1;
-                            last EXISTINGATTACHMENT;
+                    else {
+                        ATTACHMENT:
+                        for my $Attachment ( @Attachments ) {
+                            my $CompareAttachment = first { $_->{Filename} eq $Attachment->{Filename} } values %AtmIndex;
+                            if ( !IsHashRefWithData($CompareAttachment) ) {
+                                $AttachmentsDifferent = 1;
+                                last ATTACHMENT;
+                            }
+                            if ( $CompareAttachment->{FilesizeRaw} != $Attachment->{Filesize} ) {
+                                $AttachmentsDifferent = 1;
+                                last ATTACHMENT;
+                            }
                         }
                     }
                 }
