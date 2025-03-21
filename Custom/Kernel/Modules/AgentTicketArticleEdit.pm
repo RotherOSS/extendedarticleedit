@@ -623,16 +623,10 @@ sub _Mask {
         my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
             ChannelID   => $Param{CommunicationChannelID},
         );
-        if ( $CommunicationChannel{ChannelName} ne 'Email' ) {
-            if ( $Config->{Article} eq 'Both' ) {
-                $ArticleEditingEnabled = 1;
-            }
-            elsif ( $Config->{Article} eq 'Phone' || $Config->{Article} eq 'Internal' ) {
-                if ( $Config->{Article} eq $CommunicationChannel{ChannelName} ) {
-                    $ArticleEditingEnabled = 1;
-                }
-            }
-        }
+        $ArticleEditingEnabled = $Self->CheckArticleEditingEnabled(
+            Article              => $Config->{Article},
+            CommunicationChannel => $CommunicationChannel{ChannelName},
+        );
     }
 
     my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForArticle(
@@ -644,403 +638,400 @@ sub _Mask {
         ArticleID => $Self->{ArticleID},
     );
 
-    if ( $Config->{Note} ) {
+    $Param{WidgetStatus} = 'Collapsed';
 
-        $Param{WidgetStatus} = 'Collapsed';
+    if (
+        $ArticleEditingEnabled
+        || $Self->{ReplyToArticle}
+        || $Param{CreateArticle}
+        )
+    {
+        $Param{WidgetStatus} = 'Expanded';
+    }
 
-        if (
-            $Config->{NoteMandatory}
-            || $Self->{ReplyToArticle}
-            || $Param{CreateArticle}
-            )
-        {
-            $Param{WidgetStatus} = 'Expanded';
-        }
+    $LayoutObject->Block(
+        Name => 'WidgetArticle',
+        Data => \%Param,
+    );
 
-        $LayoutObject->Block(
-            Name => 'WidgetArticle',
-            Data => \%Param,
-        );
+    if ( $ArticleEditingEnabled ) {
+        $Param{SubjectRequired} = 'Validate_Required';
+        $Param{BodyRequired}    = 'Validate_Required';
+    }
+    else {
+        $Param{SubjectRequired} = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
+        $Param{BodyRequired}    = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
+    }
 
-        if ( $Config->{NoteMandatory} ) {
-            $Param{SubjectRequired} = 'Validate_Required';
-            $Param{BodyRequired}    = 'Validate_Required';
-        }
-        else {
-            $Param{SubjectRequired} = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
-            $Param{BodyRequired}    = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
-        }
+    # set customer visibility of this note to the same value as the article for whom this is the reply
+    $Param{IsVisibleForCustomer} //= $ArticleData{IsVisibleForCustomer};
+    if ( $Self->{ReplyToArticle} && !defined $Param{IsVisibleForCustomer} ) {
+        $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}->{IsVisibleForCustomer};
+    }
+    elsif ( !defined $Param{IsVisibleForCustomer} ) {
+        $Param{IsVisibleForCustomer} = $Config->{IsVisibleForCustomerDefault};
+    }
 
-        # set customer visibility of this note to the same value as the article for whom this is the reply
-        $Param{IsVisibleForCustomer} //= $ArticleData{IsVisibleForCustomer};
-        if ( $Self->{ReplyToArticle} && !defined $Param{IsVisibleForCustomer} ) {
-            $Param{IsVisibleForCustomer} = $Self->{ReplyToArticleContent}->{IsVisibleForCustomer};
-        }
-        elsif ( !defined $Param{IsVisibleForCustomer} ) {
-            $Param{IsVisibleForCustomer} = $Config->{IsVisibleForCustomerDefault};
-        }
-
-        # show attachments
-        if ( $ArticleEditingEnabled ) {
-            ATTACHMENT:
-            for my $Attachment ( @{ $Param{Attachments} } ) {
-                if (
-                    $Attachment->{ContentID}
-                    && $LayoutObject->{BrowserRichText}
-                    && ( $Attachment->{ContentType} =~ /image/i )
-                    && ( $Attachment->{Disposition} eq 'inline' )
-                    )
-                {
-                    next ATTACHMENT;
-                }
-
-                push @{ $Param{AttachmentList} }, $Attachment;
+    # show attachments
+    if ( $ArticleEditingEnabled ) {
+        ATTACHMENT:
+        for my $Attachment ( @{ $Param{Attachments} } ) {
+            if (
+                $Attachment->{ContentID}
+                && $LayoutObject->{BrowserRichText}
+                && ( $Attachment->{ContentType} =~ /image/i )
+                && ( $Attachment->{Disposition} eq 'inline' )
+                )
+            {
+                next ATTACHMENT;
             }
+
+            push @{ $Param{AttachmentList} }, $Attachment;
         }
+    }
 
-        # render article type dynamic fields
-        $Param{DynamicFieldHTML} = $Kernel::OM->Get('Kernel::Output::HTML::DynamicField::Mask')->EditSectionRender(
-            Content              => $Self->{ArticleMaskDefinition},
-            DynamicFields        => $Self->{DynamicField},
-            LayoutObject         => $LayoutObject,
-            ParamObject          => $Kernel::OM->Get('Kernel::System::Web::Request'),
-            DynamicFieldValues   => $Param{DynamicField},
-            PossibleValuesFilter => $Param{DFPossibleValues},
-            Errors               => $Param{DFErrors},
-            Visibility           => $Param{Visibility},
-            Object               => {
-                CustomerID     => $Param{CustomerID},
-                CustomerUserID => $Param{CustomerUserID},
-                UserID         => $Self->{UserID},
-                $Param{DynamicField}->%*,
-            },
+    # render article type dynamic fields
+    $Param{DynamicFieldHTML} = $Kernel::OM->Get('Kernel::Output::HTML::DynamicField::Mask')->EditSectionRender(
+        Content              => $Self->{ArticleMaskDefinition},
+        DynamicFields        => $Self->{DynamicField},
+        LayoutObject         => $LayoutObject,
+        ParamObject          => $Kernel::OM->Get('Kernel::System::Web::Request'),
+        DynamicFieldValues   => $Param{DynamicField},
+        PossibleValuesFilter => $Param{DFPossibleValues},
+        Errors               => $Param{DFErrors},
+        Visibility           => $Param{Visibility},
+        Object               => {
+            CustomerID     => $Param{CustomerID},
+            CustomerUserID => $Param{CustomerUserID},
+            UserID         => $Self->{UserID},
+            $Param{DynamicField}->%*,
+        },
+    );
+
+    # get all user ids of agents, that can be shown in this dialog
+    # based on queue rights
+    my %ShownUsers;
+    my %AllGroupsMembers = $UserObject->UserList(
+        Type  => 'Long',
+        Valid => 1,
+    );
+    my $GID        = $QueueObject->GetQueueGroupID( QueueID => $Ticket{QueueID} );
+    my %MemberList = $GroupObject->PermissionGroupGet(
+        GroupID => $GID,
+        Type    => 'note',
+    );
+    for my $UserID ( sort keys %MemberList ) {
+        $ShownUsers{$UserID} = $AllGroupsMembers{$UserID};
+    }
+
+    # create email parser object
+    my $EmailParserObject = Kernel::System::EmailParser->new(
+        Mode  => 'Standalone',
+        Debug => 0,
+    );
+
+    # check and retrieve involved and informed agents of ReplyTo Note
+    my @ReplyToUsers;
+    my %ReplyToUsersHash;
+    my %ReplyToUserIDs;
+    if ( $Self->{ReplyToArticle} ) {
+        my @ReplyToParts = $EmailParserObject->SplitAddressLine(
+            Line => $Self->{ReplyToArticleContent}->{To} || '',
         );
 
-        # get all user ids of agents, that can be shown in this dialog
-        # based on queue rights
-        my %ShownUsers;
-        my %AllGroupsMembers = $UserObject->UserList(
-            Type  => 'Long',
-            Valid => 1,
-        );
-        my $GID        = $QueueObject->GetQueueGroupID( QueueID => $Ticket{QueueID} );
-        my %MemberList = $GroupObject->PermissionGroupGet(
-            GroupID => $GID,
-            Type    => 'note',
-        );
-        for my $UserID ( sort keys %MemberList ) {
-            $ShownUsers{$UserID} = $AllGroupsMembers{$UserID};
-        }
-
-        # create email parser object
-        my $EmailParserObject = Kernel::System::EmailParser->new(
-            Mode  => 'Standalone',
-            Debug => 0,
-        );
-
-        # check and retrieve involved and informed agents of ReplyTo Note
-        my @ReplyToUsers;
-        my %ReplyToUsersHash;
-        my %ReplyToUserIDs;
-        if ( $Self->{ReplyToArticle} ) {
-            my @ReplyToParts = $EmailParserObject->SplitAddressLine(
-                Line => $Self->{ReplyToArticleContent}->{To} || '',
+        REPLYTOPART:
+        for my $SingleReplyToPart (@ReplyToParts) {
+            my $ReplyToAddress = $EmailParserObject->GetEmailAddress(
+                Email => $SingleReplyToPart,
             );
 
-            REPLYTOPART:
-            for my $SingleReplyToPart (@ReplyToParts) {
-                my $ReplyToAddress = $EmailParserObject->GetEmailAddress(
-                    Email => $SingleReplyToPart,
-                );
+            next REPLYTOPART if !$ReplyToAddress;
+            push @ReplyToUsers, $ReplyToAddress;
+        }
 
-                next REPLYTOPART if !$ReplyToAddress;
-                push @ReplyToUsers, $ReplyToAddress;
+        $ReplyToUsersHash{$_}++ for @ReplyToUsers;
+
+        # get user ids of available users
+        for my $UserID ( sort keys %ShownUsers ) {
+            my %UserData = $UserObject->GetUserData(
+                UserID => $UserID,
+            );
+
+            my $UserEmail = $UserData{UserEmail};
+            if ( $ReplyToUsersHash{$UserEmail} ) {
+                $ReplyToUserIDs{$UserID} = 1;
+            }
+        }
+
+        # add original note sender to list of user ids
+        for my $UserID ( sort @{ $Self->{ReplyToSenderUserID} } ) {
+
+            # if sender replies to himself, do not include sender in list
+            if ( $UserID ne $Self->{UserID} ) {
+                $ReplyToUserIDs{$UserID} = 1;
+            }
+        }
+
+        # remove user id of active user
+        delete $ReplyToUserIDs{ $Self->{UserID} };
+    }
+
+    if ( $ArticleEditingEnabled && ( $Config->{InformAgent} || $Config->{InvolvedAgent} ) ) {
+        $LayoutObject->Block(
+            Name => 'InformAdditionalAgents',
+        );
+    }
+
+    # get param object
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
+    # get all agents for "involved agents"
+    if ( $ArticleEditingEnabled && $Config->{InvolvedAgent} ) {
+
+        my @UserIDs = $TicketObject->TicketInvolvedAgentsList(
+            TicketID => $Self->{TicketID},
+        );
+
+        my @InvolvedAgents;
+        my $Counter = 1;
+
+        my @InvolvedUserID = $ParamObject->GetArray( Param => 'InvolvedUserID' );
+
+        my %AgentWithPermission = $GroupObject->PermissionGroupGet(
+            GroupID => $GID,
+            Type    => 'ro',
+        );
+
+        USER:
+        for my $User ( reverse @UserIDs ) {
+
+            next USER if !defined $AgentWithPermission{ $User->{UserID} };
+
+            my $Value = "$Counter: $User->{UserFullname}";
+            if ( $User->{OutOfOfficeMessage} ) {
+                $Value .= " $User->{OutOfOfficeMessage}";
             }
 
-            $ReplyToUsersHash{$_}++ for @ReplyToUsers;
+            push @InvolvedAgents, {
+                Key   => $User->{UserID},
+                Value => $Value,
+            };
+            $Counter++;
 
-            # get user ids of available users
-            for my $UserID ( sort keys %ShownUsers ) {
+            # add involved user as selected entries, if available in ReplyToAddresses list
+            if ( $Self->{ReplyToArticle} && $ReplyToUserIDs{ $User->{UserID} } ) {
+                push @InvolvedUserID, $User->{UserID};
+                delete $ReplyToUserIDs{ $User->{UserID} };
+            }
+        }
+
+        my $InvolvedAgentSize = $ConfigObject->Get('Ticket::Frontend::InvolvedAgentMaxSize') || 3;
+        $Param{InvolvedAgentStrg} = $LayoutObject->BuildSelection(
+            Data       => \@InvolvedAgents,
+            SelectedID => \@InvolvedUserID,
+            Name       => 'InvolvedUserID',
+            Class      => 'Modernize',
+            Multiple   => 1,
+            Size       => $InvolvedAgentSize,
+        );
+
+        # block is called below "inform agents"
+    }
+
+    # agent list
+    if ( $ArticleEditingEnabled && $Config->{InformAgent} ) {
+
+        # get inform user list
+        my %InformAgents;
+        my @InformUserID    = $ParamObject->GetArray( Param => 'InformUserID' );
+        my %InformAgentList = $GroupObject->PermissionGroupGet(
+            GroupID => $GID,
+            Type    => 'ro',
+        );
+        for my $UserID ( sort keys %InformAgentList ) {
+            $InformAgents{$UserID} = $AllGroupsMembers{$UserID};
+        }
+
+        if ( $Self->{ReplyToArticle} ) {
+
+            # get email address of all users and compare to replyto-addresses
+            for my $UserID ( sort keys %InformAgents ) {
+                if ( $ReplyToUserIDs{$UserID} ) {
+                    push @InformUserID, $UserID;
+                    delete $ReplyToUserIDs{$UserID};
+                }
+            }
+        }
+
+        my $InformAgentSize = $ConfigObject->Get('Ticket::Frontend::InformAgentMaxSize')
+            || 3;
+        $Param{OptionStrg} = $LayoutObject->BuildSelection(
+            Data       => \%InformAgents,
+            SelectedID => \@InformUserID,
+            Name       => 'InformUserID',
+            Class      => 'Modernize',
+            Multiple   => 1,
+            Size       => $InformAgentSize,
+        );
+        $LayoutObject->Block(
+            Name => 'InformAgent',
+            Data => \%Param,
+        );
+    }
+
+    # get involved
+    if ( $ArticleEditingEnabled && $Config->{InvolvedAgent} ) {
+
+        $LayoutObject->Block(
+            Name => 'InvolvedAgent',
+            Data => \%Param,
+        );
+    }
+
+    # show list of agents, that receive this note (ReplyToNote)
+    # at least sender of original note and all recipients of the original note
+    # that couldn't be selected with involved/inform agents
+    if ( $Self->{ReplyToArticle} ) {
+
+        my $UsersHashSize = keys %ReplyToUserIDs;
+        my $Counter       = 0;
+        $Param{UserListWithoutSelection} = join( ',', keys %ReplyToUserIDs );
+
+        if ( $UsersHashSize > 0 ) {
+            $LayoutObject->Block(
+                Name => 'InformAgentsWithoutSelection',
+                Data => \%Param,
+            );
+
+            for my $UserID ( sort keys %ReplyToUserIDs ) {
+                $Counter++;
+
                 my %UserData = $UserObject->GetUserData(
                     UserID => $UserID,
                 );
 
-                my $UserEmail = $UserData{UserEmail};
-                if ( $ReplyToUsersHash{$UserEmail} ) {
-                    $ReplyToUserIDs{$UserID} = 1;
-                }
-            }
-
-            # add original note sender to list of user ids
-            for my $UserID ( sort @{ $Self->{ReplyToSenderUserID} } ) {
-
-                # if sender replies to himself, do not include sender in list
-                if ( $UserID ne $Self->{UserID} ) {
-                    $ReplyToUserIDs{$UserID} = 1;
-                }
-            }
-
-            # remove user id of active user
-            delete $ReplyToUserIDs{ $Self->{UserID} };
-        }
-
-        if ( $ArticleEditingEnabled && ( $Config->{InformAgent} || $Config->{InvolvedAgent} ) ) {
-            $LayoutObject->Block(
-                Name => 'InformAdditionalAgents',
-            );
-        }
-
-        # get param object
-        my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-
-        # get all agents for "involved agents"
-        if ( $ArticleEditingEnabled && $Config->{InvolvedAgent} ) {
-
-            my @UserIDs = $TicketObject->TicketInvolvedAgentsList(
-                TicketID => $Self->{TicketID},
-            );
-
-            my @InvolvedAgents;
-            my $Counter = 1;
-
-            my @InvolvedUserID = $ParamObject->GetArray( Param => 'InvolvedUserID' );
-
-            my %AgentWithPermission = $GroupObject->PermissionGroupGet(
-                GroupID => $GID,
-                Type    => 'ro',
-            );
-
-            USER:
-            for my $User ( reverse @UserIDs ) {
-
-                next USER if !defined $AgentWithPermission{ $User->{UserID} };
-
-                my $Value = "$Counter: $User->{UserFullname}";
-                if ( $User->{OutOfOfficeMessage} ) {
-                    $Value .= " $User->{OutOfOfficeMessage}";
-                }
-
-                push @InvolvedAgents, {
-                    Key   => $User->{UserID},
-                    Value => $Value,
-                };
-                $Counter++;
-
-                # add involved user as selected entries, if available in ReplyToAddresses list
-                if ( $Self->{ReplyToArticle} && $ReplyToUserIDs{ $User->{UserID} } ) {
-                    push @InvolvedUserID, $User->{UserID};
-                    delete $ReplyToUserIDs{ $User->{UserID} };
-                }
-            }
-
-            my $InvolvedAgentSize = $ConfigObject->Get('Ticket::Frontend::InvolvedAgentMaxSize') || 3;
-            $Param{InvolvedAgentStrg} = $LayoutObject->BuildSelection(
-                Data       => \@InvolvedAgents,
-                SelectedID => \@InvolvedUserID,
-                Name       => 'InvolvedUserID',
-                Class      => 'Modernize',
-                Multiple   => 1,
-                Size       => $InvolvedAgentSize,
-            );
-
-            # block is called below "inform agents"
-        }
-
-        # agent list
-        if ( $ArticleEditingEnabled && $Config->{InformAgent} ) {
-
-            # get inform user list
-            my %InformAgents;
-            my @InformUserID    = $ParamObject->GetArray( Param => 'InformUserID' );
-            my %InformAgentList = $GroupObject->PermissionGroupGet(
-                GroupID => $GID,
-                Type    => 'ro',
-            );
-            for my $UserID ( sort keys %InformAgentList ) {
-                $InformAgents{$UserID} = $AllGroupsMembers{$UserID};
-            }
-
-            if ( $Self->{ReplyToArticle} ) {
-
-                # get email address of all users and compare to replyto-addresses
-                for my $UserID ( sort keys %InformAgents ) {
-                    if ( $ReplyToUserIDs{$UserID} ) {
-                        push @InformUserID, $UserID;
-                        delete $ReplyToUserIDs{$UserID};
-                    }
-                }
-            }
-
-            my $InformAgentSize = $ConfigObject->Get('Ticket::Frontend::InformAgentMaxSize')
-                || 3;
-            $Param{OptionStrg} = $LayoutObject->BuildSelection(
-                Data       => \%InformAgents,
-                SelectedID => \@InformUserID,
-                Name       => 'InformUserID',
-                Class      => 'Modernize',
-                Multiple   => 1,
-                Size       => $InformAgentSize,
-            );
-            $LayoutObject->Block(
-                Name => 'InformAgent',
-                Data => \%Param,
-            );
-        }
-
-        # get involved
-        if ( $ArticleEditingEnabled && $Config->{InvolvedAgent} ) {
-
-            $LayoutObject->Block(
-                Name => 'InvolvedAgent',
-                Data => \%Param,
-            );
-        }
-
-        # show list of agents, that receive this note (ReplyToNote)
-        # at least sender of original note and all recipients of the original note
-        # that couldn't be selected with involved/inform agents
-        if ( $Self->{ReplyToArticle} ) {
-
-            my $UsersHashSize = keys %ReplyToUserIDs;
-            my $Counter       = 0;
-            $Param{UserListWithoutSelection} = join( ',', keys %ReplyToUserIDs );
-
-            if ( $UsersHashSize > 0 ) {
                 $LayoutObject->Block(
-                    Name => 'InformAgentsWithoutSelection',
-                    Data => \%Param,
+                    Name => 'InformAgentsWithoutSelectionSingleUser',
+                    Data => \%UserData,
                 );
 
-                for my $UserID ( sort keys %ReplyToUserIDs ) {
-                    $Counter++;
-
-                    my %UserData = $UserObject->GetUserData(
-                        UserID => $UserID,
-                    );
-
+                # output a separator (InformAgentsWithoutSelectionSingleUserSeparator),
+                # if not last entry
+                if ( $Counter < $UsersHashSize ) {
                     $LayoutObject->Block(
-                        Name => 'InformAgentsWithoutSelectionSingleUser',
+                        Name => 'InformAgentsWithoutSelectionSingleUserSeparator',
                         Data => \%UserData,
                     );
-
-                    # output a separator (InformAgentsWithoutSelectionSingleUserSeparator),
-                    # if not last entry
-                    if ( $Counter < $UsersHashSize ) {
-                        $LayoutObject->Block(
-                            Name => 'InformAgentsWithoutSelectionSingleUserSeparator',
-                            Data => \%UserData,
-                        );
-                    }
                 }
             }
         }
+    }
+
+    if ( $ArticleEditingEnabled ) {
+        $LayoutObject->Block(
+            Name => 'Subject',
+            Data => \%Param,
+        );
+
+        $LayoutObject->Block(
+            Name => 'RichText',
+            Data => \%Param,
+        );
 
         if ( $ArticleEditingEnabled ) {
             $LayoutObject->Block(
-                Name => 'Subject',
-                Data => \%Param,
+                Name => 'SubjectLabelMandatory',
             );
-
             $LayoutObject->Block(
-                Name => 'RichText',
-                Data => \%Param,
+                Name => 'RichTextLabelMandatory',
             );
-
-            if ( $Config->{NoteMandatory} ) {
-                $LayoutObject->Block(
-                    Name => 'SubjectLabelMandatory',
-                );
-                $LayoutObject->Block(
-                    Name => 'RichTextLabelMandatory',
-                );
-            }
-            else {
-                $LayoutObject->Block(
-                    Name => 'SubjectLabel',
-                );
-                $LayoutObject->Block(
-                    Name => 'RichTextLabel',
-                );
-            }
-
+        }
+        else {
             $LayoutObject->Block(
-                Name => 'Attachments',
-                Data => \%Param,
+                Name => 'SubjectLabel',
+            );
+            $LayoutObject->Block(
+                Name => 'RichTextLabel',
             );
         }
 
-        # build text template string
-        my %StandardTemplates = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateList(
-            Valid => 1,
-            Type  => 'Note',
+        $LayoutObject->Block(
+            Name => 'Attachments',
+            Data => \%Param,
+        );
+    }
+
+    # build text template string
+    my %StandardTemplates = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateList(
+        Valid => 1,
+        Type  => 'Note',
+    );
+
+    my $QueueStandardTemplates = $Self->_GetStandardTemplates(
+        %Param,
+        TicketID => $Self->{TicketID} || '',
+    );
+
+    if (
+        IsHashRefWithData(
+            $QueueStandardTemplates
+                || ( $Config->{Queue} && IsHashRefWithData( \%StandardTemplates ) )
+        )
+        )
+    {
+        $Param{StandardTemplateStrg} = $LayoutObject->BuildSelection(
+            Data         => $QueueStandardTemplates || {},
+            Name         => 'StandardTemplateID',
+            SelectedID   => $Param{StandardTemplateID} || '',
+            Class        => 'Modernize',
+            PossibleNone => 1,
+            Sort         => 'AlphanumericValue',
+            Translation  => 1,
+            Max          => 200,
+        );
+        $LayoutObject->Block(
+            Name => 'StandardTemplate',
+            Data => {%Param},
+        );
+    }
+
+    if ( $Config->{IsVisibleForCustomer} ) {
+        $LayoutObject->Block(
+            Name => 'IsVisibleForCustomer',
+            Data => \%Param,
+        );
+    }
+
+    # show time accounting box
+    if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
+
+        $LayoutObject->Block(
+            Name => 'TimeUnitsWrapper',
+            Data => \%Param,
         );
 
-        my $QueueStandardTemplates = $Self->_GetStandardTemplates(
-            %Param,
-            TicketID => $Self->{TicketID} || '',
+        if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{TimeUnitsMandatory} ) {
+            $LayoutObject->Block(
+                Name => 'TimeUnitsLabelMandatory',
+                Data => \%Param,
+            );
+
+            $Param{TimeUnitsRequired} = 'Validate_Required';
+        }
+        else {
+            $LayoutObject->Block(
+                Name => 'TimeUnitsLabel',
+                Data => \%Param,
+            );
+
+            $Param{TimeUnitsRequired} = $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
+                ? 'Validate_DependingRequiredAND Validate_Depending_CreateArticle'
+                : '';
+        }
+        $LayoutObject->Block(
+            Name => 'TimeUnits',
+            Data => \%Param,
         );
-
-        if (
-            IsHashRefWithData(
-                $QueueStandardTemplates
-                    || ( $Config->{Queue} && IsHashRefWithData( \%StandardTemplates ) )
-            )
-            )
-        {
-            $Param{StandardTemplateStrg} = $LayoutObject->BuildSelection(
-                Data         => $QueueStandardTemplates || {},
-                Name         => 'StandardTemplateID',
-                SelectedID   => $Param{StandardTemplateID} || '',
-                Class        => 'Modernize',
-                PossibleNone => 1,
-                Sort         => 'AlphanumericValue',
-                Translation  => 1,
-                Max          => 200,
-            );
-            $LayoutObject->Block(
-                Name => 'StandardTemplate',
-                Data => {%Param},
-            );
-        }
-
-        if ( $Config->{IsVisibleForCustomer} ) {
-            $LayoutObject->Block(
-                Name => 'IsVisibleForCustomer',
-                Data => \%Param,
-            );
-        }
-
-        # show time accounting box
-        if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
-
-            $LayoutObject->Block(
-                Name => 'TimeUnitsWrapper',
-                Data => \%Param,
-            );
-
-            if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{TimeUnitsMandatory} ) {
-                $LayoutObject->Block(
-                    Name => 'TimeUnitsLabelMandatory',
-                    Data => \%Param,
-                );
-
-                $Param{TimeUnitsRequired} = 'Validate_Required';
-            }
-            else {
-                $LayoutObject->Block(
-                    Name => 'TimeUnitsLabel',
-                    Data => \%Param,
-                );
-
-                $Param{TimeUnitsRequired} = $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
-                    ? 'Validate_DependingRequiredAND Validate_Depending_CreateArticle'
-                    : '';
-            }
-            $LayoutObject->Block(
-                Name => 'TimeUnits',
-                Data => \%Param,
-            );
-        }
     }
 
     # add rich text editor
@@ -1172,5 +1163,25 @@ sub _ArticleDeletion {
         NoCache     => 1,
     );
 }
+
+# Rother OSS / ExtendedArticleEdit
+sub CheckArticleEditingEnabled {
+    my ( $Self, %Param ) = @_;
+
+    return unless $Param{CommunicationChannel};
+    return unless $Param{Article};
+
+    if ($Param{CommunicationChannel} eq 'Phone' || $Param{CommunicationChannel} eq 'Internal') {
+        if ( $Param{Article} eq 'Both' ) {
+            return 1;
+        }
+        elsif ( $Param{Article} eq $Param{CommunicationChannel} ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+# EO ExtendedArticleEdit
 
 1;

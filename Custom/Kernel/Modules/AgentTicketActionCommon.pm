@@ -770,7 +770,7 @@ sub Run {
 
 # Rother OSS / ExtendedArticleEdit
         # if action is ArticleEdit, check if article is editable
-        my $ArticleEditingEnabled = 1;
+        my $ArticleEditingEnabled = 0;
         if ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{Article} ) {
 
             # fetch communication channel id by article id
@@ -784,23 +784,17 @@ sub Run {
                     my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
                         ChannelID   => $CommunicationChannelID,
                     );
-                    if ( $CommunicationChannel{ChannelName} eq 'Email' ) {
-                        $ArticleEditingEnabled = 0;
-                    }
-                    elsif ( $Config->{Article} eq 'Phone' || $Config->{Article} eq 'Internal' ) {
-                        if ( $Config->{Article} ne $CommunicationChannel{ChannelName} ) {
-                            $ArticleEditingEnabled = 0;
-                        }
-                    }
+                    $ArticleEditingEnabled = Kernel::Modules::AgentTicketArticleEdit->CheckArticleEditingEnabled(
+                        Article              => $Config->{Article},
+                        CommunicationChannel => $CommunicationChannel{ChannelName},
+                    );
+                    $Config->{NoteMandatory} = $ArticleEditingEnabled;
                 }
             }
         }
 # EO ExtendedArticleEdit
 
-# Rother OSS / ExtendedArticleEdit
-#         if ( $Config->{Note} && $Config->{NoteMandatory} ) {
-        if ( $Config->{Note} && $Config->{NoteMandatory} && $ArticleEditingEnabled ) {
-# EO ExtendedArticleEdit
+        if ( $Config->{Note} && $Config->{NoteMandatory} ) {
 
             # check subject
             if ( !$GetParam{Subject} ) {
