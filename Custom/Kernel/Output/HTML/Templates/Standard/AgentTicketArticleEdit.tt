@@ -16,8 +16,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
+# Rother OSS / ExtendedArticleEdit
 # IMPORTANT
-#   package markers and original code are missing because Template::Toolkit evaluates outcommented code
+#   package markers and original code are missing because Template::Toolkit evaluates disabled code
+#   original code was including the AgentTicketActionCommon template
+# EO ExtendedArticleEdit
 
 [% RenderBlockStart("Properties") %]
 
