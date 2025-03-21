@@ -30,7 +30,7 @@ Editing of subject, body and attachments in general is already possible for inte
 
 Editing an article without having enabled editing subject, body and attachments may look like this:
 
-.. figure:: screenshot_01.png
+.. figure:: images/screenshot_01.png
    :scale: 50%
    :alt: The screenshot shows an article edit screen without subject, body and attachments.
 
@@ -38,7 +38,7 @@ Editing an article without having enabled editing subject, body and attachments 
 
 Editing an article for which editing of subject, body and attachments is enabled may look like this:
 
-.. figure:: screenshot_02.png
+.. figure:: images/screenshot_02.png
    :scale: 50%
    :alt: The screenshot shows an article edit screen with subject, body and attachments.
 
