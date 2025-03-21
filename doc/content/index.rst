@@ -7,7 +7,7 @@ Sacrifice to Sphinx
 
 Description
 ===========
-The package ExtendedArticleEdit allows editing of article dynamic fields, customer visibility and time accounting for all article types, including E-Mails, as well as editing subject, body and attachments for internal and phone articles.
+The package ExtendedArticleEdit allows editing of article dynamic fields, customer visibility and time accounting for all article types, including e-mails, as well as editing subject, body and attachments for internal and phone articles.
 
 System requirements
 ===================
@@ -26,7 +26,9 @@ Third-party software
 
 Usage
 =====
-Editing of subject, body and attachments in general is already possible for internal notes. With this package, editing can be enabled for phone and email articles as well, alongside with editing further article attributes like customer visibility state, adding time units and editing article dynamic field values. However, editing subject, body and attachments can be en- or disabled for internal and phone articles and is in general not possible for E-Mail articles.
+Editing of subject, body and attachments in general is already possible for internal notes. With this package, editing can be enabled for phone and email articles as well, alongside with editing further article attributes like customer visibility state, adding time units and editing article dynamic field values.
+
+Editing subject, body and attachments can be en- or disabled for internal and phone articles and is in general not possible for e-mail articles.
 
 Editing an article without having enabled editing subject, body and attachments may look like figure 3.1.
 
@@ -48,11 +50,11 @@ Note that time units are added instead of being overwritten.
 
 Setup
 -----
-Per default, editing in general is enabled for all articles which are not visible to the customer. If articles which are visible to the customer can be edited, is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible**.
+General editing is enabled for all articles which are not visible to the customer by default. Whether articles visible to the customer can be edited, is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible**.
 
 Editing the article subject, body and attachments is in general only possible for internal and phone articles and per default only enabled for internal articles. This is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###Article**.
 
-Time units and the customer visibility state of articles are not displayed per default in the article edit screen, but can be enabled via the system configuration settings **Ticket::Frontend::AgentTicketArticleEdit###TimeUnits** and **Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer**.
+Time units and the customer visibility state of articles are not displayed per default in the article edit screen. This can be enabled via the system configuration settings **Ticket::Frontend::AgentTicketArticleEdit###TimeUnits** and **Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer**.
 
 It is also possible to set time units as mandatory via the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory**.
 
