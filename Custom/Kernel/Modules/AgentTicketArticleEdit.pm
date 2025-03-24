@@ -623,7 +623,7 @@ sub _Mask {
         my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
             ChannelID   => $Param{CommunicationChannelID},
         );
-        $ArticleEditingEnabled = $Self->CheckArticleEditingEnabled(
+        $ArticleEditingEnabled = $Self->_CheckArticleEditingEnabled(
             Article              => $Config->{Article},
             CommunicationChannel => $CommunicationChannel{ChannelName},
         );
@@ -1165,7 +1165,7 @@ sub _ArticleDeletion {
 }
 
 # Rother OSS / ExtendedArticleEdit
-sub CheckArticleEditingEnabled {
+sub _CheckArticleEditingEnabled {
     my ( $Self, %Param ) = @_;
 
     return unless $Param{CommunicationChannel};

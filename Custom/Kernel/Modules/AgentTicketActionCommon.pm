@@ -783,7 +783,7 @@ sub Run {
                 my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
                     ChannelID   => $CommunicationChannelID,
                 );
-                $ArticleEditingEnabled = Kernel::Modules::AgentTicketArticleEdit->CheckArticleEditingEnabled(
+                $ArticleEditingEnabled = $Self->_CheckArticleEditingEnabled(
                     Article              => $Config->{Article},
                     CommunicationChannel => $CommunicationChannel{ChannelName},
                 );
