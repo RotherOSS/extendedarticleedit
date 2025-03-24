@@ -1367,39 +1367,18 @@ sub Run {
                     RealNames     => 1,
                     UserID        => $Self->{UserID}
                 );
+                my %Data = $Self->_LoadArticleEdit(
+                    ArticleData          => \%Article,
+                    Ticket               => \%Ticket,
+                    ArticleBackendObject => $ArticleBackendObject,
+                    CompareData          => 1,
+                );
 
-                # apply articleedit handling to body to allow clean comparison
-                my $CleanedBody = $GetParam{Body};
-                {
-                    # get html utils object
-                    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
-
-                    # add 'no body' if there is no body there!
-                    if ( !defined $CleanedBody ) {    # allow '0' as body
-                        $CleanedBody = '';
-                    }
-
-                    # process html article
-                    elsif ( $MimeType =~ /text\/html/i ) {
-                        $CleanedBody = $HTMLUtilsObject->ToAscii(
-                            String => $CleanedBody,
-                        );
-                    }
-                    elsif ( $MimeType && $MimeType eq "application/json" ) {
-
-                        # Keep JSON body unchanged
-                    }
-
-                    # if body isn't text, attach body as attachment (mostly done by OE) :-/
-                    elsif ( $MimeType && $MimeType !~ /\btext\b/i ) {
-                        $CleanedBody               = '- no text message => see attachment -';
-                    }
-
-                    # fix some bad stuff from some browsers (Opera)!
-                    else {
-                        $CleanedBody =~ s/(\n\r|\r\r\n|\r\n)/\n/g;
-                    }
-                }
+                # sanitize both body strings from content ids for comparison
+                my $ExistingBody = $Data{Body};
+                $ExistingBody =~ s/(=|"|')cid:(.*?)("|'|>|\/>|\s)//egxi;
+                my $NewBody = $GetParam{Body};
+                $NewBody =~ s/(=|"|')cid:(.*?)("|'|>|\/>|\s)//egxi;
 
                 # compare attachments
                 my $AttachmentsDifferent = 0;
@@ -1413,7 +1392,6 @@ sub Run {
                     $Self->{ExcludeAttachments} = {
                         ExcludePlainText => 1,
                         ExcludeHTMLBody  => $Self->{RichText},
-                        ExcludeInline    => $Self->{RichText},
                     };
 
                     # Get attachment index (excluding body attachments).
@@ -1442,7 +1420,7 @@ sub Run {
                 }
 
                 if (
-                    ( $Article{Body} ne $CleanedBody )
+                    ( $ExistingBody ne $NewBody )
                     || ( $Article{Subject} ne $GetParam{Subject} )
                     || ( $AttachmentsDifferent )
                 ) {
@@ -3828,6 +3806,12 @@ sub _LoadArticleEdit {
     else {
         return %ArticleData;
     }
+
+# Rother OSS / ExtendedArticleEdit
+    if ($Param{CompareData}) {
+        return %ArticleData;
+    }
+# EO ExtendedArticleEdit
 
     my $Content = $LayoutObject->Output(
         Template => '[% Data.HTML %]',
