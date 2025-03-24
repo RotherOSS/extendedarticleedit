@@ -1487,9 +1487,22 @@ sub Run {
             );
 
         }
-
 # Rother OSS / ExtendedArticleEdit
-        if ( $Config->{IsVisibleForCustomer} ) {
+        elsif ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{TimeUnits} ) {
+
+            # time accounting
+            $ArticleID = $Self->{ArticleID};
+            if ( $GetParam{TimeUnits} ) {
+                $TicketObject->TicketAccountTime(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $ArticleID,
+                    TimeUnit  => $GetParam{TimeUnits},
+                    UserID    => $Self->{UserID},
+                );
+            }
+        }
+
+        if ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{IsVisibleForCustomer} ) {
             my $IsVisibleForCustomer = $Config->{IsVisibleForCustomerDefault};
             $IsVisibleForCustomer = $GetParam{IsVisibleForCustomer} ? 1 : 0;
 
@@ -1506,20 +1519,6 @@ sub Run {
                 UserID    => $Self->{UserID},
             );
             $ArticleID = $Self->{ArticleID};
-        }
-
-        if ( $Config->{TimeUnits} ) {
-
-            # time accounting
-            $ArticleID = $Self->{ArticleID};
-            if ( $GetParam{TimeUnits} ) {
-                $TicketObject->TicketAccountTime(
-                    TicketID  => $Self->{TicketID},
-                    ArticleID => $ArticleID,
-                    TimeUnit  => $GetParam{TimeUnits},
-                    UserID    => $Self->{UserID},
-                );
-            }
         }
 # EO ExtendedArticleEdit
 
