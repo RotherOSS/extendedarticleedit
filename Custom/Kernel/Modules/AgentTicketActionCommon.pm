@@ -1369,7 +1369,7 @@ sub Run {
                     ArticleData          => \%Article,
                     Ticket               => \%Ticket,
                     ArticleBackendObject => $ArticleBackendObject,
-                    CompareData          => 1,
+                    NoAttachments        => 1,
                 );
 
                 # sanitize both body strings from content ids for comparison
@@ -3806,7 +3806,7 @@ sub _LoadArticleEdit {
     }
 
 # Rother OSS / ExtendedArticleEdit
-    if ($Param{CompareData}) {
+    if ($Param{NoAttachments}) {
         return %ArticleData;
     }
 # EO ExtendedArticleEdit
