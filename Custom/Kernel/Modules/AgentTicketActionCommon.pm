@@ -771,25 +771,23 @@ sub Run {
 # Rother OSS / ExtendedArticleEdit
         # if action is ArticleEdit, check if article is editable
         my $ArticleEditingEnabled = 0;
-        if ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{Article} ) {
+        if ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{Article} && $Self->{ArticleID} ) {
 
             # fetch communication channel id by article id
-            if ( $Self->{ArticleID} ) {
-                my @BaseArticles = $Kernel::OM->Get('Kernel::System::Ticket::Article')->ArticleList(
-                    TicketID  => $Self->{TicketID},
-                    ArticleID => $Self->{ArticleID},
+            my @BaseArticles = $Kernel::OM->Get('Kernel::System::Ticket::Article')->ArticleList(
+                TicketID  => $Self->{TicketID},
+                ArticleID => $Self->{ArticleID},
+            );
+            if (@BaseArticles) {
+                my $CommunicationChannelID = $BaseArticles[0]->{CommunicationChannelID};
+                my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
+                    ChannelID   => $CommunicationChannelID,
                 );
-                if (@BaseArticles) {
-                    my $CommunicationChannelID = $BaseArticles[0]->{CommunicationChannelID};
-                    my %CommunicationChannel = $Kernel::OM->Get('Kernel::System::CommunicationChannel')->ChannelGet(
-                        ChannelID   => $CommunicationChannelID,
-                    );
-                    $ArticleEditingEnabled = Kernel::Modules::AgentTicketArticleEdit->CheckArticleEditingEnabled(
-                        Article              => $Config->{Article},
-                        CommunicationChannel => $CommunicationChannel{ChannelName},
-                    );
-                    $Config->{NoteMandatory} = $ArticleEditingEnabled;
-                }
+                $ArticleEditingEnabled = Kernel::Modules::AgentTicketArticleEdit->CheckArticleEditingEnabled(
+                    Article              => $Config->{Article},
+                    CommunicationChannel => $CommunicationChannel{ChannelName},
+                );
+                $Config->{NoteMandatory} = $ArticleEditingEnabled;
             }
         }
 # EO ExtendedArticleEdit
