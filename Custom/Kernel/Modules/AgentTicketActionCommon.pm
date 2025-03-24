@@ -1426,8 +1426,8 @@ sub Run {
                 ) {
                     $ArticleID = $ArticleBackendObject->ArticleEdit(
                         TicketID                        => $Self->{TicketID},
-                        ArticleID                       => $Self->{ArticleID},             #Include the original article id for article versioning
-                        SenderType                      => 'agent',
+                        ArticleID                       => $Self->{ArticleID},
+                        SenderType                      => $Article{SenderType},
                         From                            => $From,
                         MimeType                        => $MimeType,
                         Charset                         => $LayoutObject->{UserCharset},
