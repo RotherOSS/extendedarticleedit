@@ -649,10 +649,6 @@ sub _Mask {
         $Param{SubjectRequired} = 'Validate_Required';
         $Param{BodyRequired}    = 'Validate_Required';
     }
-    else {
-        $Param{SubjectRequired} = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
-        $Param{BodyRequired}    = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
-    }
 
     # set customer visibility of this note to the same value as the article for whom this is the reply
     $Param{IsVisibleForCustomer} //= $ArticleData{IsVisibleForCustomer};
@@ -994,14 +990,14 @@ sub _Mask {
     }
 
     # show time accounting box
-    if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && $Config->{TimeUnits} ) {
+    if ( $ConfigObject->Get('Ticket::Frontend::AccountTime') && ( $Config->{TimeUnits} || $ArticleEditingEnabled ) ) {
 
         $LayoutObject->Block(
             Name => 'TimeUnitsWrapper',
             Data => \%Param,
         );
 
-        if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
+        if ( $ArticleEditingEnabled && $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
             $LayoutObject->Block(
                 Name => 'TimeUnitsLabelMandatory',
                 Data => \%Param,
@@ -1015,7 +1011,7 @@ sub _Mask {
                 Data => \%Param,
             );
 
-            $Param{TimeUnitsRequired} = $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
+            $Param{TimeUnitsRequired} = ( $ArticleEditingEnabled && $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') )
                 ? 'Validate_DependingRequiredAND Validate_Depending_CreateArticle'
                 : '';
         }

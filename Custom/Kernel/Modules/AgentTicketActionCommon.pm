@@ -788,6 +788,7 @@ sub Run {
                     CommunicationChannel => $CommunicationChannel{ChannelName},
                 );
                 $Config->{NoteMandatory} = $ArticleEditingEnabled;
+                $GetParam{CreateArticle} = $ArticleEditingEnabled;
             }
         }
 # EO ExtendedArticleEdit
@@ -1488,7 +1489,7 @@ sub Run {
 
         }
 # Rother OSS / ExtendedArticleEdit
-        elsif ( $Self->{Action} eq 'AgentTicketArticleEdit' && $Config->{TimeUnits} ) {
+        elsif ( $Self->{Action} eq 'AgentTicketArticleEdit' && ( $Config->{TimeUnits} || $ArticleEditingEnabled ) ) {
 
             # time accounting
             $ArticleID = $Self->{ArticleID};
