@@ -948,40 +948,6 @@ sub _Mask {
         );
     }
 
-    # build text template string
-    my %StandardTemplates = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateList(
-        Valid => 1,
-        Type  => 'Note',
-    );
-
-    my $QueueStandardTemplates = $Self->_GetStandardTemplates(
-        %Param,
-        TicketID => $Self->{TicketID} || '',
-    );
-
-    if (
-        IsHashRefWithData(
-            $QueueStandardTemplates
-                || ( $Config->{Queue} && IsHashRefWithData( \%StandardTemplates ) )
-        )
-        )
-    {
-        $Param{StandardTemplateStrg} = $LayoutObject->BuildSelection(
-            Data         => $QueueStandardTemplates || {},
-            Name         => 'StandardTemplateID',
-            SelectedID   => $Param{StandardTemplateID} || '',
-            Class        => 'Modernize',
-            PossibleNone => 1,
-            Sort         => 'AlphanumericValue',
-            Translation  => 1,
-            Max          => 200,
-        );
-        $LayoutObject->Block(
-            Name => 'StandardTemplate',
-            Data => {%Param},
-        );
-    }
-
     if ( $Config->{IsVisibleForCustomer} ) {
         $LayoutObject->Block(
             Name => 'IsVisibleForCustomer',
