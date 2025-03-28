@@ -33,13 +33,6 @@
             <Item ValueType="Checkbox">0</Item>
         </Value>
     </Setting>
-    <Setting Name="Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory" Required="0" Valid="1">
-        <Description Translatable="1">Sets if time units must be set by the agent.</Description>
-        <Navigation>Frontend::Agent::View::TicketArticleEdit</Navigation>
-        <Value>
-            <Item ValueType="Checkbox">0</Item>
-        </Value>
-    </Setting>
     <Setting Name="Ticket::Frontend::Article::Actions###Email" Required="1" Valid="1">
         <Description Translatable="1">Defines available article actions for Email articles.</Description>
         <Navigation>Frontend::Agent::View::TicketZoom::ArticleAction</Navigation>

@@ -1001,7 +1001,7 @@ sub _Mask {
             Data => \%Param,
         );
 
-        if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') && $Config->{TimeUnitsMandatory} ) {
+        if ( $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime') ) {
             $LayoutObject->Block(
                 Name => 'TimeUnitsLabelMandatory',
                 Data => \%Param,

@@ -33,7 +33,6 @@ sub Data {
     $Self->{Translation}{'Enables or disables the editing of articles which are visible for the customer in general.'} = 'Aktiviert oder deaktiviert das Bearbeiten von Artikeln, die für den Kunden sichtbar sind.';
     $Self->{Translation}{'Adds customer visibility of the article to the article edit screen of the agent interface.'} = 'Fügt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich hinzu.';
     $Self->{Translation}{'Sets the time units in the ticket note screen of the agent interface.'} = 'Setzt die Zeitbuchung im Artikel-ändern-Bildschirm von Tickets im Agentenbereich.';
-    $Self->{Translation}{'Sets if time units must be set by the agent.'} = 'Gibt an, ob Zeiteinheiten durch den Agenten gesetzt werden müssen.';
 
     push @{ $Self->{JavaScriptStrings} // [] }, (
     );

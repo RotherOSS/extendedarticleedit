@@ -56,17 +56,11 @@ Editing the article subject, body and attachments is in general only possible fo
 
 Time units and the customer visibility state of articles are not displayed per default in the article edit screen. This can be enabled via the system configuration settings **Ticket::Frontend::AgentTicketArticleEdit###TimeUnits** and **Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer**.
 
-It is also possible to set time units as mandatory via the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory**.
-
 Configuration Reference
 -----------------------
 
 Frontend::Agent::View::TicketArticleEdit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Ticket::Frontend::AgentTicketArticleEdit###TimeUnitsMandatory
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Sets if time units must be set by the agent.
 
 Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
