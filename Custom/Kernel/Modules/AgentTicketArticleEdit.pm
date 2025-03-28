@@ -638,16 +638,7 @@ sub _Mask {
         ArticleID => $Self->{ArticleID},
     );
 
-    $Param{WidgetStatus} = 'Collapsed';
-
-    if (
-        $ArticleEditingEnabled
-        || $Self->{ReplyToArticle}
-        || $Param{CreateArticle}
-        )
-    {
-        $Param{WidgetStatus} = 'Expanded';
-    }
+    $Param{WidgetStatus} = 'Expanded';
 
     $LayoutObject->Block(
         Name => 'WidgetArticle',
