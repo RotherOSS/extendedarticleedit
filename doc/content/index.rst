@@ -81,6 +81,10 @@ Enables or disables the editing of articles which are visible for the customer i
 Frontend::Agent::View::TicketZoom::ArticleAction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Ticket::Frontend::Article::Actions###Phone
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Defines available article actions for Phone articles.
+
 Ticket::Frontend::Article::Actions###Email
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Defines available article actions for Email articles.
