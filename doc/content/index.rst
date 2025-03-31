@@ -87,7 +87,7 @@ Defines available article actions for Phone articles.
 
 Ticket::Frontend::Article::Actions###Email
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Defines available article actions for Email articles.
+Defines available article actions for e-mail articles.
 
 About
 =======
