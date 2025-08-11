@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
 # Copyright (C) 2019-2025 Rother OSS GmbH, https://otobo.io/
 # --
-# $origin: otobo - fb18c9453318c5217ff78ca18c546fbe057ed927 - Kernel/Modules/AgentTicketActionCommon.pm
+# $origin: otobo - dd09956a70eae7dadf66be27c119652dcceedb68 - Kernel/Modules/AgentTicketActionCommon.pm
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -1052,6 +1052,8 @@ sub Run {
         if ( $ConfigObject->Get('Ticket::Type') && $Config->{TicketType} ) {
             if ( $GetParam{TypeID} ) {
                 $TicketObject->TicketTypeSet(
+                    %GetParam,
+                    %ACLCompatGetParam,
                     Action   => $Self->{Action},
                     TypeID   => $GetParam{TypeID},
                     TicketID => $Self->{TicketID},
@@ -2796,6 +2798,19 @@ sub _Mask {
             %OldOwnersShown = $TicketObject->TicketAclData();
         }
 
+        # show only users with owner or rw pemissions in the queue
+        my %OldOwnersWithAccess;
+        if ( $ConfigObject->Get('Ticket::ChangeOwnerToEveryone') ) {
+            %OldOwnersWithAccess = %OldOwnersShown;
+        }
+        else {
+            for my $UserID ( keys %OldOwnersShown ) {
+                if ( exists $ShownUsers{$UserID} ) {
+                    $OldOwnersWithAccess{$UserID} = $OldOwnersShown{$UserID};
+                }
+            }
+        }
+
         # build string
         $Param{OwnerStrg} = $LayoutObject->BuildSelection(
             Data       => \%ShownUsers,
@@ -2809,7 +2824,7 @@ sub _Mask {
             Filters      => {
                 OldOwners => {
                     Name   => $LayoutObject->{LanguageObject}->Translate('Previous Owner'),
-                    Values => \%OldOwnersShown,
+                    Values => \%OldOwnersWithAccess,
                 },
             },
         );
