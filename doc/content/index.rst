@@ -62,13 +62,17 @@ Configuration Reference
 Frontend::Agent::View::TicketArticleEdit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
+Ticket::Frontend::AgentTicketArticleEdit###EditCustomerArticles
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Adds customer visibility of the article to the article edit screen of the agent interface.
+Defines if articles written by the customer are editable.
 
 Ticket::Frontend::AgentTicketArticleEdit###TimeUnits
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Sets the time units in the ticket note screen of the agent interface.
+
+Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Adds customer visibility of the article to the article edit screen of the agent interface.
 
 Ticket::Frontend::AgentTicketArticleEdit###Article
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
