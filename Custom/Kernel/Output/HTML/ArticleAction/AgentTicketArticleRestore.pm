@@ -64,6 +64,7 @@ sub CheckAccess {
 #     return if $Param{ChannelName} ne 'Internal';
 #     return if $Param{Article}->{IsVisibleForCustomer};
     return if ( $Param{Article}{IsVisibleForCustomer} && !$Config->{ArticleCustomerVisible} );
+    return if ( $Param{Article}{SenderType} eq 'customer' && !$Config->{EditCustomerArticles} );
 # EO ExtendedArticleEdit
     return if $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleStorage') =~ m/ArticleStorageS3/;
 
