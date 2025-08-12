@@ -52,6 +52,8 @@ Setup
 -----
 General editing is enabled for all articles which are not visible to the customer by default. Whether articles visible to the customer can be edited, is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible**.
 
+Additionally, it can be enabled to edit articles which the customer has written. Activate and enable the setting **Ticket::Frontend::AgentTicketArticleEdit###EditCustomerArticles**.
+
 Editing the article subject, body and attachments is in general only possible for internal and phone articles and per default only enabled for internal articles. This is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###Article**.
 
 Time units and the customer visibility state of articles are not displayed per default in the article edit screen. This can be enabled via the system configuration settings **Ticket::Frontend::AgentTicketArticleEdit###TimeUnits** and **Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer**.
