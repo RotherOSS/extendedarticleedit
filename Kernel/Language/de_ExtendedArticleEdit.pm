@@ -25,6 +25,7 @@ sub Data {
 
     # Template: AgentTicketArticleEdit
     $Self->{Translation}{'Edit Article'} = 'Artikel bearbeiten';
+    $Self->{Translation}{'This article is not editable!'} = 'Dieser Artikel kann nicht bearbeitet werden!';
 
     # SysConfig
     $Self->{Translation}{'Both'}     = 'Beides';
@@ -33,6 +34,7 @@ sub Data {
     $Self->{Translation}{'Enables or disables the editing of articles which are visible for the customer in general.'} = 'Aktiviert oder deaktiviert das Bearbeiten von Artikeln, die für den Kunden sichtbar sind.';
     $Self->{Translation}{'Adds customer visibility of the article to the article edit screen of the agent interface.'} = 'Fügt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich hinzu.';
     $Self->{Translation}{'Sets the time units in the ticket note screen of the agent interface.'} = 'Setzt die Zeitbuchung im Artikel-ändern-Bildschirm von Tickets im Agentenbereich.';
+    $Self->{Translation}{'Defines if articles written by the customer are editable.'} = 'Definiert, ob Artikel, die ein Kundenbenutzer geschrieben hat, bearbeitet werden können.';
 
     push @{ $Self->{JavaScriptStrings} // [] }, (
     );
