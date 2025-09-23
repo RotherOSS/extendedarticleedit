@@ -64,18 +64,6 @@ Configuration Reference
 Frontend::Agent::View::TicketArticleEdit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ticket::Frontend::AgentTicketArticleEdit###EditCustomerArticles
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Defines if articles written by the customer are editable.
-
-Ticket::Frontend::AgentTicketArticleEdit###TimeUnits
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Sets the time units in the ticket note screen of the agent interface.
-
-Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Adds customer visibility of the article to the article edit screen of the agent interface.
-
 Ticket::Frontend::AgentTicketArticleEdit###Article
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Defines for which article types the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".
@@ -84,16 +72,28 @@ Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Enables or disables the editing of articles which are visible for the customer in general.
 
+Ticket::Frontend::AgentTicketArticleEdit###EditCustomerArticles
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Defines if articles written by the customer are editable.
+
+Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Adds customer visibility of the article to the article edit screen of the agent interface.
+
+Ticket::Frontend::AgentTicketArticleEdit###TimeUnits
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Sets the time units in the ticket note screen of the agent interface.
+
 Frontend::Agent::View::TicketZoom::ArticleAction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Ticket::Frontend::Article::Actions###Phone
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Defines available article actions for Phone articles.
 
 Ticket::Frontend::Article::Actions###Email
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Defines available article actions for e-mail articles.
+
+Ticket::Frontend::Article::Actions###Phone
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Defines available article actions for Phone articles.
 
 About
 =======
