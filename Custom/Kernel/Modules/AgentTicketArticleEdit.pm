@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
 # Copyright (C) 2019-2025 Rother OSS GmbH, https://otobo.io/
 # --
-# $origin: otobo - c682ffc66dfaf823fcdf7d6f01c20776b8a0ca84 - Kernel/Modules/AgentTicketArticleEdit.pm
+# $origin: otobo - 8cb022b8cd7a7187d7994380bc3b828b67c112a0 - Kernel/Modules/AgentTicketArticleEdit.pm
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -91,6 +91,36 @@ sub Run {
     # check whether this article type is eligible for changing
     my $ChannelName    = $ArticleBackendObject->ChannelNameGet();
     my $ArticleActions = $ConfigObject->Get("Ticket::Frontend::Article::Actions")->{$ChannelName};
+
+    # call permission check of corresponding article action
+    my %Ticket = $Kernel::OM->Get('Kernel::System::Ticket')->TicketGet(
+        TicketID => $Self->{TicketID},
+        UserID   => $Self->{UserID},
+    );
+    my $ActionStrg = 'AgentTicketArticleEdit';
+    if ( $Self->{Subaction} ) {
+        if ( $Self->{Subaction} eq 'Delete' ) {
+            $ActionStrg = 'AgentTicketArticleDelete';
+        }
+        elsif ( $Self->{Subaction} eq 'Restore' ) {
+            $ActionStrg = 'AgentTicketArticleRestore';
+        }
+    }
+    my $Access = $Kernel::OM->Get( 'Kernel::Output::HTML::ArticleAction::' . $ActionStrg )->CheckAccess(
+        Ticket          => \%Ticket,
+        Article         => \%Article,
+        ChannelName     => $ChannelName,
+        UserID          => $Self->{UserID},
+        AclActionLookup => {
+            $ActionStrg => 1,
+        },
+    );
+    if ( !$Access ) {
+        return $LayoutObject->NoPermission(
+            Message    => $LayoutObject->{LanguageObject}->Translate('This action is not permitted on the article!'),
+            WithHeader => 'yes',
+        );
+    }
 
     if ( $Self->{Subaction} eq 'ArticleDelete' ) {
         if ( !$ArticleActions->{'AgentTicketArticleDelete'} ) {
