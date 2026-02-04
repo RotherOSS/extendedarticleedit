@@ -2,9 +2,9 @@
 # OTOBO is a web-based ticketing system for service organisations.
 # --
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2019-2025 Rother OSS GmbH, https://otobo.io/
+# Copyright (C) 2019-2026 Rother OSS GmbH, https://otobo.io/
 # --
-# $origin: otobo - 86a9de4600b1d93d198d10492db70a5465e3c0e2 - Kernel/Modules/AgentTicketActionCommon.pm
+# $origin: otobo - 800091b06ec8f5a82ebe43f3c45644cf09dab47a - Kernel/Modules/AgentTicketActionCommon.pm
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -1828,7 +1828,7 @@ sub Run {
             if ( $DynamicFieldConfig->{Config}{MultiValue} && ref $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"} eq 'ARRAY' ) {
                 for my $i ( 0 .. $#{ $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"} } ) {
                     my $DataValues = $DynFieldStates{Fields}{$Name}{NotACLReducible}
-                        ? $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"}[$i]
+                        ? ( $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"}[$i] // '' )
                         :
                         (
                             $DynamicFieldBackendObject->BuildSelectionDataGet(
@@ -1844,7 +1844,28 @@ sub Run {
                         Name        => 'DynamicField_' . $DynamicFieldConfig->{Name} . "_$i",
                         Data        => $DataValues,
                         SelectedID  => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"}[$i],
-                        Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                        Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
+                        Max         => 100,
+                    };
+                }
+
+                # add template value for keeping templates in line with ACLs
+                if ( !$DynFieldStates{Field}{$Name}{NotACLReducible} ) {
+                    my $DataValues = (
+                        $DynamicFieldBackendObject->BuildSelectionDataGet(
+                            DynamicFieldConfig => $DynamicFieldConfig,
+                            PossibleValues     => $DynFieldStates{Fields}{$Name}{PossibleValues},
+                            Value              => [ $DynamicFieldConfig->{Config}{DefaultValue} // '' ],
+                            )
+                            || $DynFieldStates{Fields}{$Name}{PossibleValues}
+                    );
+
+                    # add dynamic field to the list of fields to update
+                    push @DynamicFieldAJAX, {
+                        Name        => 'DynamicField_' . $DynamicFieldConfig->{Name} . "_Template",
+                        Data        => $DataValues,
+                        SelectedID  => $DynamicFieldConfig->{Config}{DefaultValue} // '',
+                        Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                         Max         => 100,
                     };
                 }
@@ -1853,7 +1874,7 @@ sub Run {
             }
 
             my $DataValues = $DynFieldStates{Fields}{$Name}{NotACLReducible}
-                ? $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"}
+                ? ( $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"} // '' )
                 :
                 (
                     $DynamicFieldBackendObject->BuildSelectionDataGet(
@@ -1869,7 +1890,7 @@ sub Run {
                 Name        => 'DynamicField_' . $DynamicFieldConfig->{Name},
                 Data        => $DataValues,
                 SelectedID  => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"},
-                Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                 Max         => 100,
             };
         }
@@ -1884,7 +1905,7 @@ sub Run {
                 if ( $DynamicFieldConfig->{Config}{MultiValue} && ref $SetField->{Values}{$FrontendName} eq 'ARRAY' ) {
                     for my $i ( 0 .. $#{ $SetField->{Values}{$FrontendName} } ) {
                         my $DataValues = $SetField->{FieldStates}{$FrontendName}{NotACLReducible}
-                            ? $SetField->{Values}{$FrontendName}[$i]
+                            ? ( $SetField->{Values}{$FrontendName}[$i] // '' )
                             :
                             (
                                 $DynamicFieldBackendObject->BuildSelectionDataGet(
@@ -1900,7 +1921,28 @@ sub Run {
                             Name        => 'DynamicField_' . $FrontendName . "_$i",
                             Data        => $DataValues,
                             SelectedID  => $SetField->{Values}{$FrontendName}[$i],
-                            Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                            Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
+                            Max         => 100,
+                        };
+                    }
+
+                    # add template value for keeping templates in line with ACLs
+                    if ( !$SetField->{FieldStates}{$FrontendName}{NotACLReducible} ) {
+                        my $DataValues = (
+                            $DynamicFieldBackendObject->BuildSelectionDataGet(
+                                DynamicFieldConfig => $DynamicFieldConfig,
+                                PossibleValues     => $SetField->{FieldStates}{$FrontendName}{PossibleValues},
+                                Value              => [ $DynamicFieldConfig->{Config}{DefaultValue} // '' ],
+                                )
+                                || $SetField->{FieldStates}{$FrontendName}{PossibleValues}
+                        );
+
+                        # add dynamic field to the list of fields to update
+                        push @DynamicFieldAJAX, {
+                            Name        => 'DynamicField_' . $FrontendName . "_Template",
+                            Data        => $DataValues,
+                            SelectedID  => $DynamicFieldConfig->{Config}{DefaultValue} // '',
+                            Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                             Max         => 100,
                         };
                     }
@@ -1909,7 +1951,7 @@ sub Run {
                 }
 
                 my $DataValues = $SetField->{FieldStates}{$FrontendName}{NotACLReducible}
-                    ? $SetField->{Values}{$FrontendName}
+                    ? ( $SetField->{Values}{$FrontendName} // '' )
                     :
                     (
                         $DynamicFieldBackendObject->BuildSelectionDataGet(
@@ -1925,7 +1967,7 @@ sub Run {
                     Name        => 'DynamicField_' . $FrontendName,
                     Data        => $DataValues,
                     SelectedID  => $SetField->{Values}{$FrontendName},
-                    Translation => $DynamicFieldConfig->{Config}->{TranslatableValues} || 0,
+                    Translation => $DynamicFieldConfig->{Config}{TranslatableValues} || 0,
                     Max         => 100,
                 };
             }
