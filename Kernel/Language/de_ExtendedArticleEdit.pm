@@ -24,22 +24,28 @@ sub Data {
     my $Self = shift;
 
     # Template: AgentTicketArticleEdit
-    $Self->{Translation}{'Edit Article'} = 'Artikel bearbeiten';
-    $Self->{Translation}{'This article is not editable!'} = 'Dieser Artikel kann nicht bearbeitet werden!';
+    $Self->{Translation}->{'Edit Article'} = 'Artikel bearbeiten';
+
+    # Perl Module: Kernel/Modules/AgentTicketArticleEdit.pm
+    $Self->{Translation}->{'This article is not editable!'} = 'Dieser Artikel kann nicht bearbeitet werden!';
 
     # SysConfig
-    $Self->{Translation}{'Both'}     = 'Beides';
-    $Self->{Translation}{'Internal'} = 'Intern';
-    $Self->{Translation}{'Defines for which article types the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".'} = 'Definiert, für welche Artikel-Typen der Betreff, der Text und die Anhänge geändert werden können. "Beides" beinhaltet "Telefon" und "Intern".';
-    $Self->{Translation}{'Enables or disables the editing of articles which are visible for the customer in general.'} = 'Aktiviert oder deaktiviert das Bearbeiten von Artikeln, die für den Kunden sichtbar sind.';
-    $Self->{Translation}{'Adds customer visibility of the article to the article edit screen of the agent interface.'} = 'Fügt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich hinzu.';
-    $Self->{Translation}{'Sets the time units in the ticket note screen of the agent interface.'} = 'Setzt die Zeitbuchung im Artikel-ändern-Bildschirm von Tickets im Agentenbereich.';
-    $Self->{Translation}{'Defines if articles written by the customer are editable.'} = 'Definiert, ob Artikel, die ein Kundenbenutzer geschrieben hat, bearbeitet werden können.';
+    $Self->{Translation}->{'Adds customer visibility of the article to the article edit screen of the agent interface.'} =
+        'Fügt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich hinzu.';
+    $Self->{Translation}->{'Both'} = 'Beides';
+    $Self->{Translation}->{'Defines for which article types the editing of subject, body and attachment is enabled. "Both" includes "Phone" and "Internal".'} =
+        'Definiert, für welche Artikel-Typen der Betreff, der Text und die Anhänge geändert werden können. "Beides" beinhaltet "Telefon" und "Intern".';
+    $Self->{Translation}->{'Defines if articles written by the customer are editable.'} = 'Definiert, ob Artikel, die ein Kundenbenutzer geschrieben hat, bearbeitet werden können.';
+    $Self->{Translation}->{'Enables or disables the editing of articles which are visible for the customer in general.'} =
+        'Aktiviert oder deaktiviert das Bearbeiten von Artikeln, die für den Kunden sichtbar sind.';
+    $Self->{Translation}->{'Internal'} = 'Intern';
+    $Self->{Translation}->{'Sets the time units in the ticket note screen of the agent interface.'} =
+        'Setzt die Zeitbuchung im Artikel-ändern-Bildschirm von Tickets im Agentenbereich.';
+
 
     push @{ $Self->{JavaScriptStrings} // [] }, (
     );
 
-    return 1;
 }
 
 1;

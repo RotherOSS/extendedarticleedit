@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ExtendedArticleEdit\n"
+"POT-Creation-Date: 2026-03-06 11:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Template: AgentTicketArticleEdit
+msgid "Edit Article"
+msgstr "Artikel bearbeiten"
+
+#. Perl Module: Kernel/Modules/AgentTicketArticleEdit.pm
+msgid "This article is not editable!"
+msgstr "Dieser Artikel kann nicht bearbeitet werden!"
+
+#. SysConfig
+msgid "Adds customer visibility of the article to the article edit screen of the agent interface."
+msgstr "Fügt die Kundensichtbarkeit im Artikel-bearbeiten-Bildschirm von Tickets im Agentenbereich hinzu."
+
+#. SysConfig
+msgid "Both"
+msgstr "Beides"
+
+#. SysConfig
+msgid "Defines for which article types the editing of subject, body and attachment is enabled. \"Both\" includes \"Phone\" and \"Internal\"."
+msgstr "Definiert, für welche Artikel-Typen der Betreff, der Text und die Anhänge geändert werden können. \"Beides\" beinhaltet \"Telefon\" und \"Intern\"."
+
+#. SysConfig
+msgid "Defines if articles written by the customer are editable."
+msgstr "Definiert, ob Artikel, die ein Kundenbenutzer geschrieben hat, bearbeitet werden können."
+
+#. SysConfig
+msgid "Enables or disables the editing of articles which are visible for the customer in general."
+msgstr "Aktiviert oder deaktiviert das Bearbeiten von Artikeln, die für den Kunden sichtbar sind."
+
+#. SysConfig
+msgid "Internal"
+msgstr "Intern"
+
+#. SysConfig
+msgid "Sets the time units in the ticket note screen of the agent interface."
+msgstr "Setzt die Zeitbuchung im Artikel-ändern-Bildschirm von Tickets im Agentenbereich."
+
