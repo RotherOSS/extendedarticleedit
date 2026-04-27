@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
 # Copyright (C) 2019-2026 Rother OSS GmbH, https://otobo.io/
 # --
-# $origin: otobo - 800091b06ec8f5a82ebe43f3c45644cf09dab47a - Kernel/Modules/AgentTicketActionCommon.pm
+# $origin: otobo - b5555e348a56ae26310281194f938ffa9a04e0ed - Kernel/Modules/AgentTicketActionCommon.pm
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -1098,21 +1098,21 @@ sub Run {
         {
 
             # move ticket (send notification if no new owner is selected)
-            my $BodyAsText = '';
+            my $BodyText = '';
             if ( $LayoutObject->{BrowserRichText} ) {
-                $BodyAsText = $LayoutObject->RichText2Ascii(
+                $BodyText = $LayoutObject->RichText2Ascii(
                     String => $GetParam{Body} || 0,
                 );
             }
             else {
-                $BodyAsText = $GetParam{Body} || 0;
+                $BodyText = $GetParam{Body} || 0;
             }
             my $Move = $TicketObject->TicketQueueSet(
                 QueueID            => $GetParam{NewQueueID},
                 UserID             => $Self->{UserID},
                 TicketID           => $Self->{TicketID},
                 SendNoNotification => $GetParam{NewUserID},
-                Comment            => $BodyAsText,
+                Comment            => $BodyText,
                 Action             => $Self->{Action},
             );
             if ( !$Move ) {
@@ -1850,7 +1850,7 @@ sub Run {
                 }
 
                 # add template value for keeping templates in line with ACLs
-                if ( !$DynFieldStates{Field}{$Name}{NotACLReducible} ) {
+                if ( !$DynFieldStates{Fields}{$Name}{NotACLReducible} ) {
                     my $DataValues = (
                         $DynamicFieldBackendObject->BuildSelectionDataGet(
                             DynamicFieldConfig => $DynamicFieldConfig,
