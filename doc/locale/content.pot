@@ -1,0 +1,204 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2019–2026 Rother OSS GmbH, https://otobo.io
+# This file is distributed under the same license as the OTOBO Documentation package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OTOBO Documentation dev\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-27 08:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../content/index.rst:1
+msgid "Contents"
+msgstr ""
+
+#: ../content/index.rst:6
+msgid "Description"
+msgstr ""
+
+#: ../content/index.rst:7
+msgid "The package ExtendedArticleEdit allows editing of article dynamic fields, customer visibility and time accounting for all article types, including e-mails, as well as editing subject, body and attachments for internal and phone articles."
+msgstr ""
+
+#: ../content/index.rst:10
+msgid "System requirements"
+msgstr ""
+
+#: ../content/index.rst:13
+msgid "Framework"
+msgstr ""
+
+#: ../content/index.rst:14
+msgid "OTOBO 11.0.x"
+msgstr ""
+
+#: ../content/index.rst:17
+msgid "Packages"
+msgstr ""
+
+#: ../content/index.rst:18
+#: ../content/index.rst:22
+msgid "\\-"
+msgstr ""
+
+#: ../content/index.rst:21
+msgid "Third-party software"
+msgstr ""
+
+#: ../content/index.rst:25
+msgid "Usage"
+msgstr ""
+
+#: ../content/index.rst:26
+msgid "Editing of subject, body and attachments in general is already possible for internal notes. With this package, editing can be enabled for phone and email articles as well, alongside with editing further article attributes like customer visibility state, adding time units and editing article dynamic field values."
+msgstr ""
+
+#: ../content/index.rst:28
+msgid "Editing subject, body and attachments can be en- or disabled for internal and phone articles and is in general not possible for e-mail articles."
+msgstr ""
+
+#: ../content/index.rst:30
+msgid "Editing an article without having enabled editing subject, body and attachments may look like figure 3.1."
+msgstr ""
+
+#: ../content/index.rst:32
+#: ../content/index.rst:36
+msgid "The screenshot shows an article edit screen without subject, body and attachments."
+msgstr ""
+
+#: ../content/index.rst:38
+msgid "Editing an article for which editing of subject, body and attachments is enabled may look like figure 3.2."
+msgstr ""
+
+#: ../content/index.rst:40
+#: ../content/index.rst:44
+msgid "The screenshot shows an article edit screen with subject, body and attachments."
+msgstr ""
+
+#: ../content/index.rst:46
+msgid "Note that time units are added instead of being overwritten."
+msgstr ""
+
+#: ../content/index.rst:49
+msgid "Setup"
+msgstr ""
+
+#: ../content/index.rst:50
+msgid "General editing is enabled for all articles which are not visible to the customer by default. Whether articles visible to the customer can be edited, is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible**."
+msgstr ""
+
+#: ../content/index.rst:52
+msgid "Additionally, it can be enabled to edit articles which the customer has written. Activate and enable the setting **Ticket::Frontend::AgentTicketArticleEdit###EditCustomerArticles**."
+msgstr ""
+
+#: ../content/index.rst:54
+msgid "Editing the article subject, body and attachments is in general only possible for internal and phone articles and per default only enabled for internal articles. This is controlled by the system configuration setting **Ticket::Frontend::AgentTicketArticleEdit###Article**."
+msgstr ""
+
+#: ../content/index.rst:56
+msgid "Time units and the customer visibility state of articles are not displayed per default in the article edit screen. This can be enabled via the system configuration settings **Ticket::Frontend::AgentTicketArticleEdit###TimeUnits** and **Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer**."
+msgstr ""
+
+#: ../content/index.rst:59
+msgid "Configuration Reference"
+msgstr ""
+
+#: ../content/index.rst:62
+msgid "Frontend::Agent::View::TicketArticleEdit"
+msgstr ""
+
+#: ../content/index.rst:65
+msgid "Ticket::Frontend::AgentTicketArticleEdit###Article"
+msgstr ""
+
+#: ../content/index.rst:66
+msgid "Defines for which article types the editing of subject, body and attachment is enabled. \"Both\" includes \"Phone\" and \"Internal\"."
+msgstr ""
+
+#: ../content/index.rst:69
+msgid "Ticket::Frontend::AgentTicketArticleEdit###ArticleCustomerVisible"
+msgstr ""
+
+#: ../content/index.rst:70
+msgid "Enables or disables the editing of articles which are visible for the customer in general."
+msgstr ""
+
+#: ../content/index.rst:73
+msgid "Ticket::Frontend::AgentTicketArticleEdit###EditCustomerArticles"
+msgstr ""
+
+#: ../content/index.rst:74
+msgid "Defines if articles written by the customer are editable."
+msgstr ""
+
+#: ../content/index.rst:77
+msgid "Ticket::Frontend::AgentTicketArticleEdit###IsVisibleForCustomer"
+msgstr ""
+
+#: ../content/index.rst:78
+msgid "Adds customer visibility of the article to the article edit screen of the agent interface."
+msgstr ""
+
+#: ../content/index.rst:81
+msgid "Ticket::Frontend::AgentTicketArticleEdit###TimeUnits"
+msgstr ""
+
+#: ../content/index.rst:82
+msgid "Sets the time units in the ticket note screen of the agent interface."
+msgstr ""
+
+#: ../content/index.rst:85
+msgid "Frontend::Agent::View::TicketZoom::ArticleAction"
+msgstr ""
+
+#: ../content/index.rst:88
+msgid "Ticket::Frontend::Article::Actions###Email"
+msgstr ""
+
+#: ../content/index.rst:89
+msgid "Defines available article actions for e-mail articles."
+msgstr ""
+
+#: ../content/index.rst:92
+msgid "Ticket::Frontend::Article::Actions###Phone"
+msgstr ""
+
+#: ../content/index.rst:93
+msgid "Defines available article actions for Phone articles."
+msgstr ""
+
+#: ../content/index.rst:96
+msgid "About"
+msgstr ""
+
+#: ../content/index.rst:99
+msgid "Contact"
+msgstr ""
+
+#: ../content/index.rst:100
+msgid "Rother OSS GmbH"
+msgstr ""
+
+#: ../content/index.rst:101
+msgid "Email: hello@otobo.io"
+msgstr ""
+
+#: ../content/index.rst:102
+msgid "Web: https://otobo.io"
+msgstr ""
+
+#: ../content/index.rst:105
+msgid "Version"
+msgstr ""
+
+#: ../content/index.rst:106
+msgid "Author: |doc-vendor| / Version: |doc-version| / Date of release: |doc-datestamp|"
+msgstr ""
