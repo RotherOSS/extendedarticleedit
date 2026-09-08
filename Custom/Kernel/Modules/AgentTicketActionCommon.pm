@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
 # Copyright (C) 2019-2026 Rother OSS GmbH, https://otobo.io/
 # --
-# $origin: otobo - b5555e348a56ae26310281194f938ffa9a04e0ed - Kernel/Modules/AgentTicketActionCommon.pm
+# $origin: otobo - d7341c9ec2c6dca78bee3aa63098664597880b45 - Kernel/Modules/AgentTicketActionCommon.pm
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -2280,6 +2280,21 @@ sub Run {
                     $GetParam{DynamicField}{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $DynamicFieldConfig->{Config}->{DefaultValue} || '';
                 }
             }
+
+            # pre-filling cache for reference field - necessary for ACL calculation of lens fields
+            my $IsReferenceField = $DynamicFieldBackendObject->HasBehavior(
+                Behavior           => 'IsReferenceField',
+                DynamicFieldConfig => $DynamicFieldConfig,
+            );
+
+            next DYNAMICFIELD unless $IsReferenceField;
+
+            $Kernel::OM->Get('Kernel::System::Web::FormCache')->SetFormData(
+                LayoutObject => $LayoutObject,
+                FormID       => $Self->{FormID},
+                Key          => 'PossibleValues_DynamicField_' . $DynamicFieldConfig->{Name},
+                Value        => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"},
+            );
         }
 
         my $Autoselect = $ConfigObject->Get('TicketACL::Autoselect') || undef;
