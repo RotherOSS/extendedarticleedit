@@ -6,7 +6,8 @@
     <Vendor>Rother OSS GmbH</Vendor>
     <URL>https://otobo.io/</URL>
     <License>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</License>
-    <Description Lang="en">The package ExtendedArticleEdit adds the possibility to change ticket and article attributes.</Description>
+    <Description Lang="en">Adds the possibility to change ticket and article attributes.</Description>
+    <Description Lang="hu">Lehetőséget ad a jegy és a bejegyzés attribútumainak megváltoztatására.</Description>
     <Filelist>
         <File Permission="660" Location="Custom/Kernel/Modules/AgentTicketActionCommon.pm" />
         <File Permission="660" Location="Custom/Kernel/Modules/AgentTicketArticleEdit.pm" />
